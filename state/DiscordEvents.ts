@@ -12,7 +12,8 @@ export default async (client: Client) => {
       if (typeof _import.default !== "function" || !_import?.default) continue;
       
       client.on(event.split('.')[0] as keyof ClientEvents, (...args) => _import.default(client, ...args));
-    } catch {
+    } catch (error) {
+      console.error(error);
       continue;
     };
 	};
