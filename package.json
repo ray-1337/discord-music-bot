@@ -1,6 +1,7 @@
 {
   "name": "discord-music-bot",
   "scripts": {
+    "prod": "ts-node ./Index.ts",
     "dev": "ts-node-dev --respawn --transpile-only ./Index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
