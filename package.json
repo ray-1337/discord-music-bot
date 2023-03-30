@@ -1,6 +1,7 @@
 {
   "name": "discord-music-bot",
   "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only ./Index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "ray#1337",
@@ -26,7 +27,7 @@
     "libsodium-wrappers": "^0.7.11",
     "ms": "^2.1.3",
     "oceanic-collectors": "^1.0.7",
-    "pretty-ms": "^8.0.0",
+    "pretty-ms": "^7.0.1",
     "validator": "^13.9.0",
     "yt-search": "^2.10.4"
   }
