@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "oceanic.js": "^1.5.1",
-    "undici": "^5.21.0"
+    "undici": "^5.21.0",
+    "ytdl-core": "^4.11.2"
   }
 }
