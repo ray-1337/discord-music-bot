@@ -6,7 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "ray#1337",
-  "license": "MIT",
+  "license": "MPL-2.0",
   "devDependencies": {
     "@types/ms": "^0.7.31",
     "@types/node": "^18.15.11",
