@@ -1,0 +1,41 @@
+{
+  "ts-node": {
+    "transpileOnly": true
+  },
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "ESNEXT",
+    "checkJs": false,
+    "allowJs": true,
+    "strictFunctionTypes": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "pretty": true,
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "strict": true,
+    "baseUrl": ".",
+    "downlevelIteration": false,
+    "strictBindCallApply": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmitOnError": true,
+    "strictNullChecks": true,
+    "useUnknownInCatchVariables": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noFallthroughCasesInSwitch": true,
+    "removeComments": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "disableReferencedProjectLoad": true,
+    "disableSolutionSearching": true
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "typeAcquisition": {
+    "enable": true
+  }
+}
