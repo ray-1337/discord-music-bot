@@ -1,6 +1,16 @@
 # Discord Bot Music
 This is my latest own project around Discord bot music.
 
+# Installation
+- Fork the repo.
+- `npm install` first.
+  - `pnpm` and `yarn` works too, I mainly use `pnpm`.
+  - This repo uses `ffmpeg`, so please install them first.
+    - Search Google on how to install `ffmpeg` on Ubuntu, Windows, or any.
+- Rename `.env.example` to `.env`, edit the configuration first, such as Discord bot token, etc.
+  - You can edit the `Config.ts` file as well.
+- Run `npm dev` for testing, and `npm prod` for production.
+
 ## Why bother?
 The first thing is I couldn't find any functional YouTube search-based music bot.
 
