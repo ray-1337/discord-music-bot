@@ -1,6 +1,12 @@
 # Discord Bot Music
 This is my latest own project around Discord bot music.
 
+# Library
+I use:
+- [oceanic](https://npmjs.com/oceanic.js) for the Discord library.
+- [ytdl-core](https://npmjs.com/ytdl-core) and [yt-search](https://npmjs.com/yt-search) for retrieving YouTube contents.
+- [@discordjs/voice](https://npmjs.com/@discordjs/voice) for Discord voice state management.
+
 # Installation
 - Fork the repo.
 - `npm install` first.
