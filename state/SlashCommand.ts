@@ -9,6 +9,8 @@ const fileSpecificRegex = /\.(t|j)s+$/gi;
 
 export default async function (client: Client) {
   try {
+    if (commandCache.size >= 1) return;
+    
     // for analytics
     const firstTime = performance.now();
     const finaleCommand: (CreateChatInputApplicationCommandOptions & CreateApplicationCommandOptions)[] = [];
@@ -30,12 +32,6 @@ export default async function (client: Client) {
         };
 
         const cmdName = pascalToCamel((command.info?.name || category).toLowerCase().replace(fileSpecificRegex, ""));
-
-        // skip duplicated by accident
-        if (commandCache.has(cmdName)) {
-          console.warn(`/${cmdName} command is found duplicated.`);
-          continue;
-        };
 
         const cmdDescription = command.info?.description || "Unknown.";
         const truncatedDesc = cmdDescription.length > 100 ? truncateString(cmdDescription, 97) : cmdDescription;
