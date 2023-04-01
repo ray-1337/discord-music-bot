@@ -68,8 +68,7 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyGui
   
     // play with file
     if (file) {
-      let allowedContentType = new RegExp(/(audio\/(mp3|ogg|webm))/gi);
-
+      let allowedContentType = new RegExp(/(audio\/(mp3|ogg|webm|mpeg))/gi);
       if (!file.contentType?.match(allowedContentType)) {
         return interaction.createFollowup({content: "The file type must be at least .mp3/.ogg/.webm"});
       };
