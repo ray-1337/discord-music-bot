@@ -6,10 +6,11 @@ import validator from "validator";
 import { Readable } from "node:stream";
 import ms from "ms";
 import { request } from "undici";
+import { spawn } from "node:child_process";
 
 const { isURL } = validator;
 
-export const appropriateContentType = /(audio\/(mp3|ogg|webm|mpeg3?))|(application\/octet-stream)/gi;
+export const appropriateContentType = /(audio\/(mp3|ogg|webm|mpeg3?))|(application\/octet-stream)|(video\/mp4)/gi;
 
 const durationLimit = ms("6h"); // 6 hours
 
@@ -126,11 +127,44 @@ class MusicUtil {
             return null;
           };
 
-          await this.#privatePlay(voiceState, Readable.from(Buffer.from(await data.body.arrayBuffer())));
+          const buf = await data.body.arrayBuffer();
+
+          // if the content is video
+          if (header?.match(/video\/(mp4)/gim) || (data.headers?.["content-disposition"] as string).match(/(mp4|mov|webm)^/gim)) {
+            await new Promise<boolean>((resolve, reject) => {
+              const buffers: Buffer[] = [];
+
+              const args = [
+                '-i', query,
+                '-b:a', '128k',
+                '-acodec', 'libmp3lame',
+                '-f', 'mp3',
+                'pipe:1'
+              ];
+            
+              const ffmpegProcess = spawn('ffmpeg', args);
+
+              ffmpegProcess.stdout.on('data', (data) => {
+                buffers.push(data);
+              });
+
+              ffmpegProcess.on("error", (error) => {
+                console.error(error);
+                return reject();
+              })
+              
+              ffmpegProcess.on("close", async () => {
+                await this.#privatePlay(voiceState, Readable.from(Buffer.concat(buffers)));
+                resolve(true);
+              });
+            })
+          } else {
+            await this.#privatePlay(voiceState, Readable.from(Buffer.from(buf)));
+          };
 
           if (!disableQueuing) {
             this.#saveQueue(voiceState.guildID, voiceState.userID, query);
-          }
+          };
         } catch (error) {
           console.error(error);
           return null;
