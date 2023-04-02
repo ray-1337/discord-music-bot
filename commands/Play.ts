@@ -20,7 +20,7 @@ export const args: ApplicationCommandOptionsWithValue[] = [
   {
     name: "file",
     type: Constants.ApplicationCommandOptionTypes.ATTACHMENT,
-    description: "Play song with file instead. Currently supports .mp3 only.",
+    description: "Play song with file instead. Currently supports .mp3 and .mp4",
     required: false
   }
 ];
