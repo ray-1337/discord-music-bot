@@ -9,7 +9,7 @@ import { request } from "undici";
 
 const { isURL } = validator;
 
-export const appropriateContentType = /(audio\/(mp3|ogg|webm|mpeg3?))/gi;
+export const appropriateContentType = /(audio\/(mp3|ogg|webm|mpeg3?))|(application\/octet-stream)/gi;
 
 const durationLimit = ms("6h"); // 6 hours
 
@@ -121,7 +121,8 @@ class MusicUtil {
             return null;
           };
 
-          if (!(data.headers?.["content.type"] as string)?.match(appropriateContentType)) {
+          const header = data.headers?.["content-type"] as string;
+          if (!header?.match(appropriateContentType)) {
             return null;
           };
 
