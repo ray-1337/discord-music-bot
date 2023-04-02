@@ -8,6 +8,8 @@ import ms from "ms";
 
 const { isURL } = validator;
 
+export const appropriateContentType = /(audio\/(mp3|ogg|webm|mpeg3?))/gi;
+
 const durationLimit = ms("6h"); // 6 hours
 
 // music state

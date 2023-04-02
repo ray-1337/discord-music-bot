@@ -1,7 +1,6 @@
 import { Client, CommandInteraction, ApplicationCommandOptionsWithValue, Constants, AnyGuildTextChannel, VoiceChannel } from "oceanic.js";
 import Music from "../state/Music";
-// import validator from "validator";
-// const { isURL } = validator;
+import { appropriateContentType } from "../state/Music";
 
 export const config: CommandConfig = {
   cooldown: 5
@@ -68,8 +67,7 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyGui
   
     // play with file
     if (file) {
-      let allowedContentType = new RegExp(/(audio\/(mp3|ogg|webm|mpeg))/gi);
-      if (!file.contentType?.match(allowedContentType)) {
+      if (!file.contentType?.match(appropriateContentType)) {
         return interaction.createFollowup({content: "The file type must be at least .mp3/.ogg/.webm"});
       };
     };
