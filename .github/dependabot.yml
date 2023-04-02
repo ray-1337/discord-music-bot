@@ -1,0 +1,15 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    assignees:
+      - "ray-1337"
+    commit-message:
+      include: "scope"
+      prefix: ""
+    target-branch: "nefertiti"
+    versioning-strategy: "increase"
+    labels:
+      - "dependencies"
