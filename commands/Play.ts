@@ -7,14 +7,14 @@ export const config: CommandConfig = {
 };
 
 export const info: CommandInfo = {
-  description: "Play a song from YouTube."
+  description: "Play a song from YouTube, or a file."
 };
 
 export const args: ApplicationCommandOptionsWithValue[] = [
   {
-    name: "title",
+    name: "query",
     type: Constants.ApplicationCommandOptionTypes.STRING,
-    description: "A song title, or YouTube url.",
+    description: "A song query, YouTube url, or a URL of file.",
     required: false
   },
   {
@@ -34,11 +34,11 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyGui
     let content = interaction?.data?.options;
     if (!content) return interaction.createFollowup({content: "Unknown command interaction. Try again later."});
 
-    let title = content.getString("title")
+    let query = content.getString("query")
     let file = content.getAttachment("file");
 
-    if (!title && !file) {
-      return interaction.createFollowup({content: "Unknown audio query. Choose at least title or file option."});
+    if (!query && !file) {
+      return interaction.createFollowup({content: "Unknown audio query. Choose at least `query` or `file` option."});
     };
 
     let userVoiceState = interaction.member.voiceState;
@@ -74,8 +74,8 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyGui
 
     // const checkPlayer = Music.state(interaction.guildID);
     
-    // let isOpponentVideo = file?.contentType ? /(video\/(mp4))/gim.test(file.contentType) : (title && isURL(title) ? title.endsWith("mp4") : false);
-    const player = await Music.play(userVoiceState, String(file?.proxyURL || title), /*undefined, isOpponentVideo*/);
+    // let isOpponentVideo = file?.contentType ? /(video\/(mp4))/gim.test(file.contentType) : (query && isURL(query) ? query.endsWith("mp4") : false);
+    const player = await Music.play(userVoiceState, String(file?.proxyURL || query), /*undefined, isOpponentVideo*/);
     if (!player) return interaction.createFollowup({content: "Unable to play song due to lacking of information, copyright, deleted content, the duration is too long, and many more."});
 
     return interaction.createFollowup({content: `Successfully added **${player}** to queue.`});
