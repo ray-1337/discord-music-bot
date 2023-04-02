@@ -26,6 +26,8 @@ So, that's the most obvious reason why should I made my own.
 I extended this project with more features, such as:
 - Supports YouTube, that's obvious.
 - Supports playing with .mp3 file.
+- Supports application/octet-stream.
+  - For example, converting [video from TikTok to audio](https://ssstik.io/download-tiktok-mp3), and then copy the URL.
 - Auto-disconnect when no one's in voice channel.
 
 ## Can I use this too?

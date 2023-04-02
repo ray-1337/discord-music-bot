@@ -5,6 +5,7 @@ import { createAudioPlayer, StreamType, createAudioResource, AudioResource, Audi
 import validator from "validator";
 import { Readable } from "node:stream";
 import ms from "ms";
+import { request } from "undici";
 
 const { isURL } = validator;
 
@@ -107,8 +108,33 @@ class MusicUtil {
         await this.#privatePlay(voiceState, ytdl(query, downloadOptions));
         return query;
       } else if (isURL(query)) {
-        if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, query);
-        await this.#privatePlay(voiceState, query);
+        try {
+          const data = await request(query, { 
+            headers: {
+              // bypass cloudflare error
+              "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
+            }
+          });
+
+          if (!data || data.statusCode >= 400) {
+            console.error(data.statusCode, await data.body.text());
+            return null;
+          };
+
+          if (!(data.headers?.["content.type"] as string)?.match(appropriateContentType)) {
+            return null;
+          };
+
+          await this.#privatePlay(voiceState, Readable.from(Buffer.from(await data.body.arrayBuffer())));
+
+          if (!disableQueuing) {
+            this.#saveQueue(voiceState.guildID, voiceState.userID, query);
+          }
+        } catch (error) {
+          console.error(error);
+          return null;
+        };
+
         return query;
       };
 
