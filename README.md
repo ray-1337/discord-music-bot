@@ -29,6 +29,7 @@ I extended this project with more features, such as:
 - Supports playing with .mp4 file.
 - Supports application/octet-stream.
   - For example, converting [video from TikTok to audio](https://ssstik.io/download-tiktok-mp3), and then copy the URL.
+    - Tested URL from [ssstik.io](https://ssstik.io/download-tiktok-mp3), [savefrom.net](https://en.savefrom.net/), [fdown.net](https://fdown.net)
 - Auto-disconnect when no one's in voice channel.
 
 ## Can I use this too?
