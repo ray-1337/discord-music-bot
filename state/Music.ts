@@ -123,6 +123,10 @@ class MusicUtil {
           };
 
           const header = data.headers?.["content-type"] as string;
+          if (data.statusCode === 302 && data.headers?.["location"]) {
+            return this.play(voiceState, data.headers["location"] as string);
+          };
+
           if (!header?.match(appropriateContentType)) {
             return null;
           };
