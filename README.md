@@ -36,3 +36,7 @@ I extended this project with more features, such as:
 Yeah, sure. I don't mind. You can recreate your own command handler, do your things here.
 
 I'm just hoping that you puts me on credit when you're using this commercial or vice-versa. ;<
+
+# Useful Links
+- [Contributing](.github/CONTRIBUTING.md)
+- [Vulnerable Report](.github/SECURITY.md)
