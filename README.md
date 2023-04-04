@@ -17,7 +17,7 @@ I use:
     - Search Google on how to install `ffmpeg` on Ubuntu, Windows, or any.
 - Rename `.env.example` to `.env`, edit the configuration first, such as Discord bot token, etc.
   - You can edit the `Config.ts` file as well.
-- Run `npm dev` for testing, and `npm prod` for production.
+- Run `npm run dev` for testing, and `npm run prod` for production.
 
 ## Why bother?
 The first thing is I couldn't find any functional YouTube search-based music bot.
