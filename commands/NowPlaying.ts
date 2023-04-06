@@ -27,7 +27,15 @@ export const run = async (client:  Client, interaction: CommandInteraction<AnyGu
     const player = Music.state(interaction.guildID);
     if (!player?.currentQueue) return interaction.createFollowup({content: "No players available."});
 
-    return interaction.createFollowup({content: `<@${player.currentQueue.requesterID}> — ${player.currentQueue.url}`});
+    let loopIcon = () => {
+      switch (player.loop) {
+        case "single": return "🔂";
+        case "whole": return "🔁";
+        default: return "";
+      };
+    };
+
+    return interaction.createFollowup({content: `<@${player.currentQueue.requesterID}> — ${player.currentQueue.url} ${loopIcon()}`});
   } catch (error) {
     console.log(error);
     return interaction.createFollowup({content: "An error occurred."});
