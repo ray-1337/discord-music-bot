@@ -20,7 +20,7 @@ const musicConnection: GuardedMap<string, { voiceState: VoiceState, audioPlayer:
 const currentMusicData: GuardedMap<string, AudioResource> = new Map();
 
 // loop state
-type loopState = "single" | "whole";
+export type loopState = "single" | "whole";
 const loopMusic: GuardedMap<string, loopState> = new Map();
 const loopedQuery: GuardedMap<string, MusicDataInference[]> = new Map();
 
