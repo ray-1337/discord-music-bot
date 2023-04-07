@@ -1,6 +1,9 @@
 # Discord Bot Music
 This is my latest own project around Discord bot music.
 
+# Disclaimer
+This repository is a bit unstable, such as loop command, etc. But, the rest of it is fine. I will gradually fix, or add more features in it.
+
 # Library
 I use:
 - [oceanic](https://npmjs.com/oceanic.js) for the Discord library.
