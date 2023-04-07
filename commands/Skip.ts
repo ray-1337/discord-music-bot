@@ -27,7 +27,7 @@ export const run = async (client:  Client, interaction: CommandInteraction<AnyGu
     const player = Music.state(interaction.guildID);
     if (!player?.currentQueue) return interaction.createFollowup({content: "No players available."});
 
-    Music.skip(interaction.guildID);
+    Music.skip(interaction.guildID, true);
 
     return interaction.createFollowup({content: "The current song has been skipped."});
   } catch (error) {
