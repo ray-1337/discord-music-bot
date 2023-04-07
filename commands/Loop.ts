@@ -16,9 +16,9 @@ export const args: ApplicationCommandOptionsWithValue[] = [
     description: "Type of loop.",
     required: true,
     choices: [
-      { name: "Whole Queue", value: "whole" },
+      // { name: "Whole Queue", value: "whole" },
       { name: "Current Track", value: "single" },
-      { name: "Default", value: "off" }
+      { name: "Off", value: "off" }
     ]
   }
 ];
