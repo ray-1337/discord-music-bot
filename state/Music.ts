@@ -76,7 +76,7 @@ class MusicUtil {
 
     // if whole, store last queried songs, exhaust it, and bring it back to loopedQuery again
     if (loopState === "whole") {
-      loopedQuery.set(guildID, musicData.get(guildID)!);
+      loopedQuery.set(guildID, musicData.get(guildID));
     };
 
     return true;
@@ -196,7 +196,9 @@ class MusicUtil {
   };
 
   // skip the music if queued, otherwise stopped the player
-  async skip(guildID: string) {
+  async skip(guildID: string, forced?: boolean) {
+    if (typeof forced == "undefined") forced = false;
+
     try {
       if (!musicConnection.has(guildID)) return false;
       const { audioPlayer, voiceState } = musicConnection.get(guildID);
@@ -205,34 +207,42 @@ class MusicUtil {
       currentMusicData.delete(guildID);
 
       // remove listener to prevent conflicts
-      audioPlayer.off(AudioPlayerStatus.Idle, () => this.skip(guildID));
+      audioPlayer.off(AudioPlayerStatus.Idle, () => this.skip(guildID, forced));
 
       const queue = musicData.get(guildID);
-      const loopState = loopMusic?.get(guildID);
+      //const lastChance = queue?.[0];
 
-      // loop management
-      if (loopMusic.has(guildID)) {
-        // repeat whole queue
-        if (loopState === "whole" && loopedQuery.has(guildID)) {
-          const loopedQueue = loopedQuery.get(guildID);
-          loopedQueue.shift();
-
-          if (!loopedQueue?.length && queue?.length) {
-            loopedQuery.set(guildID, queue);
-          };
-
-          const play = await this.play(voiceState, loopedQueue[0].url, true);
-          if (!play) {
-            // draft (might look at it, this might be an infinite loop)
-            return this.skip(guildID);
-          };
-
+      // single loop
+      if (loopMusic.has(guildID) && loopMusic.get(guildID) === "single" && queue?.length) {
+        if (!forced) {
+          const play = await this.play(voiceState, queue[0].url, true);
+          if (!play) return this.skip(guildID, true);
           return;
         };
-      } else {
-        // ignore single/off mode
-        queue?.shift();
       };
+
+      // loop whole queue
+      // if (loopMusic.has(guildID) && loopedQuery.has(guildID) && loopMusic.get(guildID) === "whole" && !forced) {
+      //   let loopedQueue = loopedQuery.get(guildID);
+
+      //   loopedQueue.shift();
+      //   if (!loopedQueue?.length) {
+      //     if (queue?.length) {
+      //       loopedQuery.set(guildID, queue);
+      //     } else if (lastChance) {
+      //       loopedQuery.set(guildID, [lastChance]);
+      //     };
+
+      //     loopedQueue = loopedQuery.get(guildID);
+      //   };
+
+      //   const play = await this.play(voiceState, loopedQueue[0].url, true);
+      //   if (!play) return this.skip(guildID, true);
+      
+      //   return;
+      // };
+
+      queue?.shift();
 
       // disconnect if no queue left
       if (!queue?.length) {
@@ -242,7 +252,7 @@ class MusicUtil {
       const play = await this.play(voiceState, queue[0].url, true);
       if (play === null) {
         // draft (might look at it, this might be an infinite loop)
-        return this.skip(guildID);
+        return this.skip(guildID, forced);
       };
 
       return true;
@@ -290,10 +300,10 @@ class MusicUtil {
 
     // idle (music finished)
     audioPlayer
-    .on(AudioPlayerStatus.Idle, () => this.skip(guildID))
+    .on(AudioPlayerStatus.Idle, () => this.skip(guildID, true))
     .on("error", (error) => {
       console.error(error);
-      this.skip(guildID);
+      this.skip(guildID, true);
     });
 
     return;
