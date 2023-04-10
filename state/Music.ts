@@ -134,7 +134,7 @@ class MusicUtil {
           const buf = await data.body.arrayBuffer();
 
           // if the content is video
-          if (header?.match(/video\/(mp4)/gim) || (data.headers?.["content-disposition"] as string).match(/(mp4|mov|webm)^/gim)) {
+          if (header?.match(/video\/(mp4)/gim) || (data.headers?.["content-disposition"] as string | undefined)?.match(/(mp4|mov|webm)^/gim)) {
             await new Promise<boolean>((resolve, reject) => {
               const buffers: Buffer[] = [];
 
