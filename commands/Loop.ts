@@ -46,18 +46,6 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyGui
       return interaction.createFollowup({content: `You must be on <#${botVoiceState.id}> to use this feature.`});
     };
 
-    if (!botVoiceState.permissionsOf(client.user.id).has("VIEW_CHANNEL")) {
-      return interaction.createFollowup({content: "The bot doesn't have permission to **view** the voice channel."});
-    };
-
-    if (!botVoiceState.permissionsOf(client.user.id).has("CONNECT")) {
-      return interaction.createFollowup({content: "The bot doesn't have permission to **connect** the voice channel."});
-    };
-
-    if (!botVoiceState.permissionsOf(client.user.id).has("SPEAK")) {
-      return interaction.createFollowup({content: "The bot doesn't have permission to **speak** in the voice channel."});
-    };
-
     const player = Music.state(interaction.guildID);
     if (!player?.currentQueue) return interaction.createFollowup({content: "No players available."});
 
