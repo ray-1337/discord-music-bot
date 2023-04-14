@@ -22,7 +22,17 @@ export const args: ApplicationCommandOptionsWithValue[] = [
     type: Constants.ApplicationCommandOptionTypes.ATTACHMENT,
     description: "Play song with file instead. Currently supports .mp3 and .mp4",
     required: false
-  }
+  },
+  {
+    name: "provider",
+    type: Constants.ApplicationCommandOptionTypes.STRING,
+    description: "Choose the audio provider.",
+    required: false,
+    choices: [
+      { name: "YouTube", value: "yt" },
+      { name: "SoundCloud", value: "sc" }
+    ]
+  },
 ];
 
 export const run = async (client: Client, interaction: CommandInteraction<AnyGuildTextChannel>) => {
@@ -34,8 +44,9 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyGui
     let content = interaction?.data?.options;
     if (!content) return interaction.createFollowup({content: "Unknown command interaction. Try again later."});
 
-    let query = content.getString("query")
+    let query = content.getString("query");
     let file = content.getAttachment("file");
+    let provider = content.getString<"sc" | "yt">("provider");
 
     if (!query && !file) {
       return interaction.createFollowup({content: "Unknown audio query. Choose at least `query` or `file` option."});
@@ -75,7 +86,7 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyGui
     // const checkPlayer = Music.state(interaction.guildID);
     
     // let isOpponentVideo = file?.contentType ? /(video\/(mp4))/gim.test(file.contentType) : (query && isURL(query) ? query.endsWith("mp4") : false);
-    const player = await Music.play(userVoiceState, String(file?.proxyURL || query), /*undefined, isOpponentVideo*/);
+    const player = await Music.play(userVoiceState, String(file?.proxyURL || query), undefined, provider);
     if (!player) return interaction.createFollowup({content: "Unable to play song due to lacking of information, copyright, deleted content, the duration is too long, and many more."});
 
     return interaction.createFollowup({content: `Successfully added **${player}** to queue.`});

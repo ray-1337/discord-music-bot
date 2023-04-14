@@ -11,6 +11,7 @@ I use:
 - [@discordjs/voice](https://npmjs.com/@discordjs/voice) for Discord voice state management.
 - [ffmpeg](https://ffmpeg.org) for video converting.
 - [libmp3lame](https://trac.ffmpeg.org/wiki/Encode/MP3) for video-to-MP3 convert.
+- [soundcloud-downloader](https://www.npmjs.com/soundcloud-downloader) for retrieving SoundCloud contents.
 
 # Installation
 - Fork the repo.
@@ -30,6 +31,7 @@ So, that's the most obvious reason why should I made my own.
 ## What's so good about it?
 I extended this project with more features, such as:
 - Supports YouTube, that's obvious.
+- Supports SoundCloud.
 - Supports playing with .mp3 file.
 - Supports playing with .mp4 file.
 - Supports application/octet-stream.

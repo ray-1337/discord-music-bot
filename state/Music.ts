@@ -8,6 +8,10 @@ import ms from "ms";
 import { request } from "undici";
 import { spawn } from "node:child_process";
 
+// soundcloud management
+import { create as scdlContent } from "soundcloud-downloader";
+const scdl = scdlContent({ clientID: process.env?.SOUNDCLOUD_CLIENT_ID });
+
 const { isURL } = validator;
 
 export const appropriateContentType = /(audio\/(mp3|ogg|webm|mpeg3?))|(application\/octet-stream)|(video\/mp4)/gi;
@@ -26,6 +30,7 @@ const loopedQuery: GuardedMap<string, MusicDataInference[]> = new Map();
 
 const youtubeRegex = /(https?:\/\/(?:www\.)?((?:youtu\.be\/.{4,16})|(youtube\.com\/watch\?v=.{4,16})))/gim;
 const youtubeShortRegex = /https?:\/\/(?:www\.)?youtube\.com\/shorts\/(.{10,13})/im;
+const soundCloudRegex = /^(?:https?:\/\/)((?:www\.)|(?:m\.))?soundcloud\.com\/[a-z0-9](?!.*?(-|_){2})[\w-]{1,23}[a-z0-9](?:\/.+)?$/gim;
 
 class MusicUtil {
   constructor() { };
@@ -93,10 +98,11 @@ class MusicUtil {
   };
 
   // play some songs
-  async play(voiceState: VoiceState, query: string, disableQueuing?: boolean) {
+  async play(voiceState: VoiceState, query: string, disableQueuing?: boolean, playerType?: "sc" | "yt") {
     try {
       const highWaterMark = 1 << 26; // i set higher so it can play audio smoothly, you can make it higher if you have a huge memory usage
       const downloadOptions: ytdlDO = { filter: "audioonly", quality: "lowestaudio", highWaterMark };
+      const scAudioFormat = 'audio/ogg; codecs="opus"';
 
       // transform youtube short to normal video
       const gotYTShort = query.match(youtubeShortRegex);
@@ -104,91 +110,140 @@ class MusicUtil {
         query = "https://youtu.be/" + gotYTShort[1];
       };
 
-      if (query.match(youtubeRegex)) {
-        if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, query);
-        await this.#privatePlay(voiceState, ytdl(query, downloadOptions));
-        return query;
-      } else if (isURL(query)) {
-        try {
-          const data = await request(query, { 
-            headers: {
-              // bypass cloudflare error
-              "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
-            }
-          });
-
-          if (!data || data.statusCode >= 400) {
-            console.error(data.statusCode, await data.body.text());
-            return null;
-          };
-
-          const header = data.headers?.["content-type"] as string;
-          if (data.statusCode === 302 && data.headers?.["location"]) {
-            return this.play(voiceState, data.headers["location"] as string);
-          };
-
-          if (!header?.match(appropriateContentType)) {
-            return null;
-          };
-
-          const buf = await data.body.arrayBuffer();
-
-          // if the content is video
-          if (header?.match(/video\/(mp4)/gim) || (data.headers?.["content-disposition"] as string | undefined)?.match(/(mp4|mov|webm)^/gim)) {
-            await new Promise<boolean>((resolve, reject) => {
-              const buffers: Buffer[] = [];
-
-              const args = [
-                '-i', query,
-                '-b:a', '128k',
-                '-acodec', 'libmp3lame',
-                '-f', 'mp3',
-                'pipe:1'
-              ];
-            
-              const ffmpegProcess = spawn('ffmpeg', args);
-
-              ffmpegProcess.stdout.on('data', (data) => {
-                buffers.push(data);
-              });
-
-              ffmpegProcess.on("error", (error) => {
-                console.error(error);
-                return reject();
-              })
-              
-              ffmpegProcess.on("close", async () => {
-                await this.#privatePlay(voiceState, Readable.from(Buffer.concat(buffers)));
-                resolve(true);
-              });
-            })
-          } else {
-            await this.#privatePlay(voiceState, Readable.from(Buffer.from(buf)));
-          };
-
-          if (!disableQueuing) {
-            this.#saveQueue(voiceState.guildID, voiceState.userID, query);
-          };
-        } catch (error) {
-          console.error(error);
-          return null;
+      // url validation
+      switch (true) {
+        // youtube
+        case youtubeRegex.test(query): {
+          if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, query);
+          await this.#privatePlay(voiceState, ytdl(query, downloadOptions));
+          return query;
         };
 
-        return query;
+        // soundcloud
+        case soundCloudRegex.test(query): {
+          const clientID = process.env?.SOUNDCLOUD_CLIENT_ID;
+          if (!clientID) return null;
+  
+          // @ts-expect-error
+          const trackDownload = await scdl.downloadFormat(query, scAudioFormat);
+          if (!trackDownload) return null;
+  
+          if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, query);
+  
+          await this.#privatePlay(voiceState, trackDownload);
+          return query;
+        };
+
+        // raw URL
+        case isURL(query): {
+          try {
+            const data = await request(query, { 
+              headers: {
+                // bypass cloudflare error
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
+              }
+            });
+  
+            if (!data || data.statusCode >= 400) {
+              console.error(data.statusCode, await data.body.text());
+              return null;
+            };
+  
+            const header = data.headers?.["content-type"] as string;
+            if (data.statusCode === 302 && data.headers?.["location"]) {
+              return this.play(voiceState, data.headers["location"] as string);
+            };
+  
+            if (!header?.match(appropriateContentType)) {
+              return null;
+            };
+  
+            const buf = await data.body.arrayBuffer();
+  
+            // if the content is video
+            if (header?.match(/video\/(mp4)/gim) || (data.headers?.["content-disposition"] as string | undefined)?.match(/(mp4|mov|webm)^/gim)) {
+              await new Promise<boolean>((resolve, reject) => {
+                const buffers: Buffer[] = [];
+  
+                const args = [
+                  '-i', query,
+                  '-b:a', '128k',
+                  '-acodec', 'libmp3lame',
+                  '-f', 'mp3',
+                  'pipe:1'
+                ];
+              
+                const ffmpegProcess = spawn('ffmpeg', args);
+  
+                ffmpegProcess.stdout.on('data', (data) => {
+                  buffers.push(data);
+                });
+  
+                ffmpegProcess.on("error", (error) => {
+                  console.error(error);
+                  return reject();
+                })
+                
+                ffmpegProcess.on("close", async () => {
+                  await this.#privatePlay(voiceState, Readable.from(Buffer.concat(buffers)));
+                  resolve(true);
+                });
+              })
+            } else {
+              await this.#privatePlay(voiceState, Readable.from(Buffer.from(buf)));
+            };
+  
+            if (!disableQueuing) {
+              this.#saveQueue(voiceState.guildID, voiceState.userID, query);
+            };
+          } catch (error) {
+            console.error(error);
+            return null;
+          };
+  
+          return query;
+        };
+
+        default: break;
       };
 
-      const search = await ytSearch(query);
-      const current = search?.videos?.[0];
+      // string validation
+      switch (playerType) {
+        case "sc": {
+          const search = await scdl.search({
+            query, limit: 1, resourceType: "tracks"
+          });
 
-      if (
-        !current?.url ||
-        current.seconds >= Math.round(durationLimit / 1000) ||
-        !current.seconds
-      ) return null;
+          const current = search?.collection?.[0];
+          if (!current?.permalink_url) return null;
 
-      if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, search.videos[0].url);
-      await this.#privatePlay(voiceState, ytdl(search.videos[0].url, downloadOptions));
-      return search.videos[0].url;
+          const scURL = current.permalink_url;
+
+          // @ts-expect-error
+          const trackDownload = await scdl.downloadFormat(scURL, scAudioFormat);
+          if (!trackDownload) return null;
+
+          if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, scURL);
+          await this.#privatePlay(voiceState, trackDownload);
+          return scURL;
+        };
+
+        case "yt":
+        default: {
+          const search = await ytSearch(query);
+          const current = search?.videos?.[0];
+
+          if (
+            !current?.url ||
+            current.seconds >= Math.round(durationLimit / 1000) ||
+            !current.seconds
+          ) return null;
+
+          if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, search.videos[0].url);
+          await this.#privatePlay(voiceState, ytdl(search.videos[0].url, downloadOptions));
+          return search.videos[0].url;
+        };
+      };
     } catch (error) {
       console.error(error);
       return null;
