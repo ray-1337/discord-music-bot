@@ -10,7 +10,7 @@
   "devDependencies": {
     "@types/ms": "^0.7.31",
     "@types/node": "^18.15.11",
-    "@types/validator": "^13.7.14",
+    "@types/validator": "^13.7.15",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.0.4"
@@ -19,7 +19,7 @@
     "@discordjs/voice": "^0.16.0",
     "oceanic.js": "^1.6.0",
     "undici": "^5.21.2",
-    "ytdl-core": "4.9.1"
+    "ytdl-core": "^4.11.4"
   },
   "optionalDependencies": {
     "@discordjs/opus": "^0.9.0",
