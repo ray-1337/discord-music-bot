@@ -300,7 +300,7 @@ class MusicUtil {
 
     // idle (music finished)
     audioPlayer
-    .on(AudioPlayerStatus.Idle, () => this.skip(guildID, true))
+    .on(AudioPlayerStatus.Idle, () => this.skip(guildID))
     .on("error", (error) => {
       console.error(error);
       this.skip(guildID, true);
