@@ -25,6 +25,7 @@ const currentMusicData: GuardedMap<string, AudioResource> = new Map();
 
 // loop state
 export type loopState = "single" | "whole";
+export type PlayerAvailability = "sc" | "yt";
 const loopMusic: GuardedMap<string, loopState> = new Map();
 const loopedQuery: GuardedMap<string, MusicDataInference[]> = new Map();
 
@@ -98,7 +99,7 @@ class MusicUtil {
   };
 
   // play some songs
-  async play(voiceState: VoiceState, query: string, disableQueuing?: boolean, playerType?: "sc" | "yt") {
+  async play(voiceState: VoiceState, query: string, disableQueuing?: boolean, playerType?: PlayerAvailability) {
     try {
       const highWaterMark = 1 << 26; // i set higher so it can play audio smoothly, you can make it higher if you have a huge memory usage
       const downloadOptions: ytdlDO = { filter: "audioonly", quality: "lowestaudio", highWaterMark };

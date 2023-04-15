@@ -1,6 +1,5 @@
 import { Client, CommandInteraction, ApplicationCommandOptionsWithValue, Constants, AnyGuildTextChannel, VoiceChannel } from "oceanic.js";
-import Music from "../state/Music";
-import { appropriateContentType } from "../state/Music";
+import Music, { PlayerAvailability, appropriateContentType } from "../state/Music";
 
 export const config: CommandConfig = {
   cooldown: 5
@@ -46,7 +45,7 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyGui
 
     let query = content.getString("query");
     let file = content.getAttachment("file");
-    let provider = content.getString<"sc" | "yt">("provider");
+    let provider = content.getString<PlayerAvailability>("provider");
 
     if (!query && !file) {
       return interaction.createFollowup({content: "Unknown audio query. Choose at least `query` or `file` option."});
