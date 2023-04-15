@@ -63,6 +63,41 @@ class MusicUtil {
     return true;
   };
 
+  // search through lots
+  async search(query: string, playerType?: PlayerAvailability, limitPagination?: number): Promise<Array<{url: string, title: string}>> {
+    if (!playerType) playerType = "yt";
+    if (!limitPagination) limitPagination = 5;
+
+    switch (playerType) {
+      case "sc": {
+        const search = await scdl.search({ query, limit: limitPagination });
+        if (!search?.collection?.length) return [];
+        
+        return search.collection
+        .map(({permalink_url}) => {
+          if (permalink_url) {
+            return { url: permalink_url, title: permalink_url };
+          };
+        })
+        
+        // https://stackoverflow.com/a/54318054
+        .filter(<T>(argument: T | undefined): argument is T => {
+          return argument !== undefined;
+        });
+      };
+
+      default:
+      case "yt": {
+        const search = await ytSearch(query);
+        if (!search?.videos?.length) return [];
+
+        return search.videos.slice(0, limitPagination).map(({url, title}) => {
+          return { url, title };
+        });
+      };
+    };
+  };
+
   // expose queue
   queue(guildID: string) {
     return musicData.has(guildID) ? musicData.get(guildID) : [];

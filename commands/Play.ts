@@ -1,5 +1,7 @@
 import { Client, CommandInteraction, ApplicationCommandOptionsWithValue, Constants, AnyGuildTextChannel, VoiceChannel } from "oceanic.js";
 import Music, { PlayerAvailability, appropriateContentType } from "../state/Music";
+import { awaitComponentInteraction } from "oceanic-collectors";
+import ms from "ms";
 
 export const config: CommandConfig = {
   cooldown: 5
@@ -32,6 +34,12 @@ export const args: ApplicationCommandOptionsWithValue[] = [
       { name: "SoundCloud", value: "sc" }
     ]
   },
+  {
+    name: "search-mode",
+    type: Constants.ApplicationCommandOptionTypes.BOOLEAN,
+    description: "Enabling this will let you choose the tracks before playing it.",
+    required: false
+  },
 ];
 
 export const run = async (client: Client, interaction: CommandInteraction<AnyGuildTextChannel>) => {
@@ -46,6 +54,7 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyGui
     let query = content.getString("query");
     let file = content.getAttachment("file");
     let provider = content.getString<PlayerAvailability>("provider");
+    let searchMode = content.getBoolean("search-mode", false);
 
     if (!query && !file) {
       return interaction.createFollowup({content: "Unknown audio query. Choose at least `query` or `file` option."});
@@ -82,9 +91,60 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyGui
       };
     };
 
-    // const checkPlayer = Music.state(interaction.guildID);
-    
-    // let isOpponentVideo = file?.contentType ? /(video\/(mp4))/gim.test(file.contentType) : (query && isURL(query) ? query.endsWith("mp4") : false);
+    // search mode
+    if (searchMode) {
+      if (!query) {
+        return interaction.createFollowup({content: "Search mode only works with `query` option only."});
+      };
+      
+      const queries = await Music.search(query, provider);
+      if (!queries?.length) {
+        return interaction.createFollowup({content: "Nothing comes up from the search."});
+      };
+
+      const choosingQueryCustomID = "choosetrack_" + Date.now();
+      const choosingQuery = await interaction.createFollowup({
+        content: "Choose one of these tracks to play.",
+        components: [{
+          type: Constants.ComponentTypes.ACTION_ROW,
+          components: [{
+            type: Constants.ComponentTypes.STRING_SELECT,
+            customID: choosingQueryCustomID,
+            minValues: 1, maxValues: 1,
+            placeholder: "Choose the track",
+            options: queries.map(({title, url}) => {
+              return {
+                label: title,
+                value: url
+              };
+            })
+          }]
+        }]
+      });
+
+      const componentResponse = await awaitComponentInteraction(client, { max: 1, time: ms("1m"), filter: (val => val.member?.id === interaction.member.id) })
+      if (
+        !componentResponse?.data ||
+        componentResponse?.data.componentType !== Constants.ComponentTypes.STRING_SELECT ||
+        componentResponse?.data?.customID !== choosingQueryCustomID
+      ) {
+        return interaction.editFollowup(choosingQuery.id, { content: "Invalid followup components.", components: [] });
+      };
+
+      const finalChoose = componentResponse.data.values.getStrings();
+      if (!finalChoose?.[0]) {
+        return interaction.editFollowup(choosingQuery.id, { content: "Failed to retrieve chosen content.", components: [] });
+      };
+
+      const player = await Music.play(userVoiceState, finalChoose[0], undefined, provider);
+      if (!player) return interaction.editFollowup(choosingQuery.id, {
+        components: [],
+        content: "Unable to play song due to lacking of information, copyright, deleted content, the duration is too long, and many more."
+      });
+
+      return interaction.editFollowup(choosingQuery.id, { content: `Successfully added **${player}** to queue.`, components: [] });
+    };
+
     const player = await Music.play(userVoiceState, String(file?.proxyURL || query), undefined, provider);
     if (!player) return interaction.createFollowup({content: "Unable to play song due to lacking of information, copyright, deleted content, the duration is too long, and many more."});
 
