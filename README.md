@@ -4,6 +4,12 @@ This is my latest own project around creating Discord bot music from scratch.
 # Disclaimer
 This repository is a bit unstable, such as loop command, etc. But, the rest of it is fine. I will gradually fix, or add more features in it.
 
+# Motivation
+I have a few friends, hanging out but they couldn't find a single functional Discord music bot from YouTube.<br/>
+We've tried Uzox, Hydra, MEE6, Jockie Bot, and similar. But, none of them are working.<br/>
+I was disappointed and said, you know what, F- it.<br/>
+So, I've tried to create my own from scratch, while keeping it simple and easier to use.
+
 # Library
 I use:
 - [oceanic](https://npmjs.com/oceanic.js) for the Discord library.
@@ -22,11 +28,6 @@ I use:
 - Rename `.env.example` to `.env`, edit the configuration first, such as Discord bot token, etc.
   - You can edit the `Config.ts` file as well.
 - Run `npm run dev` for testing, and `npm run prod` for production.
-
-## Why bother?
-The first thing is I couldn't find any functional YouTube search-based music bot.
-
-So, that's the most obvious reason why should I made my own.
 
 ## What's so good about it?
 I extended this project with more features, such as:
