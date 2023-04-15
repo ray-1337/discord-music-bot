@@ -1,5 +1,5 @@
 # Discord Bot Music
-This is my latest own project around Discord bot music.
+This is my latest own project around creating Discord bot music from scratch.
 
 # Disclaimer
 This repository is a bit unstable, such as loop command, etc. But, the rest of it is fine. I will gradually fix, or add more features in it.
