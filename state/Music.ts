@@ -54,8 +54,21 @@ class MusicUtil {
     if (!musicConnection.has(guildID)) return false;
     const { audioPlayer, voiceConnection } = musicConnection.get(guildID);
 
-    audioPlayer.stop();
-    voiceConnection.destroy(true);
+    voiceConnection.off("error", (error) => console.error(error));
+
+    audioPlayer
+    .off(AudioPlayerStatus.Idle, () => this.skip(guildID))
+    .off("error", (error) => {
+      console.error(error);
+      this.skip(guildID, true);
+    });
+
+    try {
+      // bozo
+      voiceConnection.destroy();
+    } catch {}
+
+    audioPlayer.stop(true);
     musicConnection.delete(guildID);
     loopMusic.delete(guildID); // remove loop state
     loopedQuery.delete(guildID); // remove loop queue
@@ -136,8 +149,6 @@ class MusicUtil {
   // play some songs
   async play(voiceState: VoiceState, query: string, disableQueuing?: boolean, playerType?: PlayerAvailability) {
     try {
-      const highWaterMark = 1 << 26; // i set higher so it can play audio smoothly, you can make it higher if you have a huge memory usage
-      const downloadOptions: ytdlDO = { filter: "audioonly", quality: "lowestaudio", highWaterMark };
       const scAudioFormat = 'audio/ogg; codecs="opus"';
 
       // transform youtube short to normal video
@@ -149,14 +160,14 @@ class MusicUtil {
       // url validation
       switch (true) {
         // youtube
-        case youtubeRegex.test(query): {
+        case !!query?.match?.(youtubeRegex)?.length: {
           if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, query);
-          await this.#privatePlay(voiceState, ytdl(query, downloadOptions));
+          this.#privatePlay(voiceState, this.#safeytdl(query));
           return query;
         };
 
         // soundcloud
-        case soundCloudRegex.test(query): {
+        case !!query?.match?.(soundCloudRegex)?.length: {
           const clientID = process.env?.SOUNDCLOUD_CLIENT_ID;
           if (!clientID) return null;
   
@@ -166,7 +177,7 @@ class MusicUtil {
   
           if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, query);
   
-          await this.#privatePlay(voiceState, trackDownload);
+          this.#privatePlay(voiceState, trackDownload);
           return query;
         };
 
@@ -221,12 +232,12 @@ class MusicUtil {
                 })
                 
                 ffmpegProcess.on("close", async () => {
-                  await this.#privatePlay(voiceState, Readable.from(Buffer.concat(buffers)));
+                  this.#privatePlay(voiceState, Readable.from(Buffer.concat(buffers)));
                   resolve(true);
                 });
               })
             } else {
-              await this.#privatePlay(voiceState, Readable.from(Buffer.from(buf)));
+              this.#privatePlay(voiceState, Readable.from(Buffer.from(buf)));
             };
   
             if (!disableQueuing) {
@@ -260,7 +271,7 @@ class MusicUtil {
           if (!trackDownload) return null;
 
           if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, scURL);
-          await this.#privatePlay(voiceState, trackDownload);
+          this.#privatePlay(voiceState, trackDownload);
           return scURL;
         };
 
@@ -276,7 +287,7 @@ class MusicUtil {
           ) return null;
 
           if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, search.videos[0].url);
-          await this.#privatePlay(voiceState, ytdl(search.videos[0].url, downloadOptions));
+          this.#privatePlay(voiceState, this.#safeytdl(search.videos[0].url));
           return search.videos[0].url;
         };
       };
@@ -353,8 +364,21 @@ class MusicUtil {
     };
   };
 
+  #safeytdl(query: string) {
+    // i set higher so it can play audio smoothly, you can make it higher if you have a huge memory usage
+    const highWaterMark = 1 << 26;
+
+    const downloadOptions: ytdlDO = {
+      filter: "audioonly",
+      quality: "lowestaudio",
+      highWaterMark
+    };
+
+    return ytdl(query, downloadOptions);
+  };
+
   // private function
-  async #privatePlay(voiceState: VoiceState, query: Readable | string) {
+  #privatePlay(voiceState: VoiceState, query: Readable | string) {
     const audioPlayer = createAudioPlayer();
     const { guildID } = voiceState;
 
@@ -371,6 +395,8 @@ class MusicUtil {
         guildId: guildID,
         selfDeaf: true
       });
+
+      voiceConnection.on("error", (error) => console.error(error));
 
       if (!currentMusicData.has(guildID)) {
         voiceConnection.subscribe(audioPlayer);
