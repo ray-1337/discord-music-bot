@@ -112,9 +112,10 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyGui
             customID: choosingQueryCustomID,
             minValues: 1, maxValues: 1,
             placeholder: "Choose the track",
-            options: queries.map(({title, url}) => {
+            options: queries.map(({title, url, artist}) => {
               return {
                 label: title,
+                description: artist,
                 value: url
               };
             })

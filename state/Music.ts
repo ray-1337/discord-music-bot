@@ -64,7 +64,7 @@ class MusicUtil {
   };
 
   // search through lots
-  async search(query: string, playerType?: PlayerAvailability, limitPagination?: number): Promise<Array<{url: string, title: string}>> {
+  async search(query: string, playerType?: PlayerAvailability, limitPagination?: number): Promise<Array<{url: string, title: string, artist?: string | undefined}>> {
     if (!playerType) playerType = "yt";
     if (!limitPagination) limitPagination = 5;
 
@@ -76,7 +76,7 @@ class MusicUtil {
         return search.collection
         .map(({permalink_url}) => {
           if (permalink_url) {
-            return { url: permalink_url, title: permalink_url };
+            return { url: permalink_url, title: permalink_url, artist: permalink_url.match(/soundcloud\.com\/([^/]+)\//)?.[1] };
           };
         })
         
@@ -91,8 +91,8 @@ class MusicUtil {
         const search = await ytSearch(query);
         if (!search?.videos?.length) return [];
 
-        return search.videos.slice(0, limitPagination).map(({url, title}) => {
-          return { url, title };
+        return search.videos.slice(0, limitPagination).map(({url, title, author}) => {
+          return { url, title, artist: author.name };
         });
       };
     };
