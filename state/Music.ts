@@ -433,11 +433,9 @@ class MusicUtil {
   };
 
   async #safeSoundCloud(url: string): Promise<Readable | null> {
-    const scAudioFormat = 'audio/ogg; codecs="opus"';
-    
     try {
       // @ts-expect-error
-      const trackDownload = await scdl.downloadFormat(url, scAudioFormat);
+      const trackDownload = await scdl.downloadFormat(url, "audio/mpeg");
       return trackDownload || null;
     } catch (error) {
       console.error(error);
