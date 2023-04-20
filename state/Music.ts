@@ -154,8 +154,6 @@ class MusicUtil {
   // play some songs
   async play(voiceState: VoiceState, query: string, disableQueuing?: boolean, playerType?: PlayerAvailability) {
     try {
-      const scAudioFormat = 'audio/ogg; codecs="opus"';
-
       // transform youtube short to normal video
       const gotYTShort = query.match(youtubeShortRegex);
       if (gotYTShort?.[1]) {
@@ -190,8 +188,7 @@ class MusicUtil {
           const clientID = process.env?.SOUNDCLOUD_CLIENT_ID;
           if (!clientID) return null;
   
-          // @ts-expect-error
-          const trackDownload = await scdl.downloadFormat(query, scAudioFormat);
+          const trackDownload = await this.#safeSoundCloud(query);
           if (!trackDownload) return null;
   
           if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, query);
@@ -285,8 +282,7 @@ class MusicUtil {
 
           const scURL = current.permalink_url;
 
-          // @ts-expect-error
-          const trackDownload = await scdl.downloadFormat(scURL, scAudioFormat);
+          const trackDownload = await this.#safeSoundCloud(query);
           if (!trackDownload) return null;
 
           if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, scURL);
@@ -380,6 +376,19 @@ class MusicUtil {
     } catch (error) {
       console.error(error);
       return false;
+    };
+  };
+
+  async #safeSoundCloud(url: string): Promise<Readable | null> {
+    const scAudioFormat = 'audio/ogg; codecs="opus"';
+    
+    try {
+      // @ts-expect-error
+      const trackDownload = await scdl.downloadFormat(url, scAudioFormat);
+      return trackDownload || null;
+    } catch (error) {
+      console.error(error);
+      return null;
     };
   };
 
