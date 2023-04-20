@@ -1,6 +1,6 @@
 import { VoiceState } from "oceanic.js";
 import { search as ytSearch } from "yt-search";
-import ytdl, { downloadOptions as ytdlDO } from "ytdl-core";
+import ytdl, { downloadOptions as ytdlDO, validateURL as validateYTURL } from "ytdl-core";
 import { createAudioPlayer, StreamType, createAudioResource, AudioResource, AudioPlayer, VoiceConnection, AudioPlayerStatus, joinVoiceChannel } from "@discordjs/voice";
 import validator from "validator";
 import { Readable } from "node:stream";
@@ -111,6 +111,48 @@ class MusicUtil {
           return { url, title, artist: author.name };
         });
       };
+    };
+  };
+
+  // get track info
+  async trackInfo(query: string): Promise<{ title: string; url: string; duration: number; thumbnail: string; embed_color: number } | null> {
+    try {
+      switch (true) {
+        // soundcloud
+        case scdl.isValidUrl(query): {
+          const {title, permalink_url, full_duration, artwork_url} = await scdl.getInfo(query);
+          if (!title || !permalink_url || !artwork_url) return null;
+
+          return {
+            title,
+            url: permalink_url,
+            duration: full_duration || 0,
+            thumbnail: artwork_url.replace("large", "t500x500"),
+            embed_color: 0xF26F23
+          };
+        };
+
+        // youtube
+        case validateYTURL(query): {
+          const {videoDetails} = await ytdl.getInfo(query);
+          if (!videoDetails) return null;
+
+          const { title, video_url, lengthSeconds, videoId } = videoDetails;
+
+          return {
+            title,
+            url: video_url,
+            duration: ms(lengthSeconds + "s"),
+            thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+            embed_color: 0xFF0000
+          };
+        };
+
+        default: return null;
+      };
+    } catch (error) {
+      console.error(error);
+      return null;
     };
   };
 
