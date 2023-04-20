@@ -90,7 +90,7 @@ export const run = async (client: Client, interaction: CommandInteraction) => {
       embed.setDescription(pages[index].join('\n'));
       embed.setFooter(`Page ${index+1} of ${pages.length} page(s)`);
 
-      await message.edit({ embeds: embed.toJSON(true) });
+      await interaction.editFollowup(message.id, { embeds: embed.toJSON(true) });
 
       await response.deferUpdate();
 
