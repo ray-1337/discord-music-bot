@@ -136,14 +136,18 @@ class MusicUtil {
     return true;
   };
 
-  // pause/resume the song
-  pauseResume(guildID: string) {
+  // pause the player
+  pause(guildID: string) {
     if (!musicConnection.has(guildID)) return false;
     const { audioPlayer } = musicConnection.get(guildID);
+    return audioPlayer.pause(true);
+  };
 
-    audioPlayer.state.status === AudioPlayerStatus.Paused ? audioPlayer.unpause() : audioPlayer.pause(true);
-
-    return audioPlayer.state.status === AudioPlayerStatus.Paused;
+  // resume the player
+  resume(guildID: string) {
+    if (!musicConnection.has(guildID)) return false;
+    const { audioPlayer } = musicConnection.get(guildID);
+    return audioPlayer.unpause();
   };
 
   // play some songs

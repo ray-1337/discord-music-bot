@@ -27,9 +27,9 @@ export const run = async (client:  Client, interaction: CommandInteraction<AnyGu
     const player = Music.state(interaction.guildID);
     if (!player?.currentQueue) return interaction.createFollowup({content: "No players available."});
 
-    Music.pause(interaction.guildID);
+    Music.resume(interaction.guildID);
 
-    return interaction.createFollowup({content: "The player has been paused."});
+    return interaction.createFollowup({content: "The player has been resumed."});
   } catch (error) {
     console.log(error);
     return interaction.createFollowup({content: "An error occurred."});
