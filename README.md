@@ -32,6 +32,7 @@ I use:
 ## What's so good about it?
 I extended this project with more features, such as:
 - Supports YouTube, that's obvious.
+- Supports playing contents from the playlist.
 - Supports SoundCloud.
 - Supports playing with .mp3 file.
 - Supports playing with .mp4 file.

@@ -31,6 +31,7 @@ const loopedQuery: GuardedMap<string, MusicDataInference[]> = new Map();
 
 const youtubeRegex = /(https?:\/\/(?:www\.)?((?:youtu\.be\/.{4,16})|(youtube\.com\/watch\?v=.{4,16})))/gim;
 const youtubeShortRegex = /https?:\/\/(?:www\.)?youtube\.com\/shorts\/(.{10,13})/im;
+const youtubePlaylistRegex = /^http(?:s)?:\/\/(?:www\.)?youtube\.com\/playlist\?list=(PL[a-zA-Z0-9_-]{1,})/gim;
 const soundCloudRegex = /^(?:https?:\/\/)((?:www\.)|(?:m\.))?soundcloud\.com\/[a-z0-9](?!.*?(-|_){2})[\w-]{1,23}[a-z0-9](?:\/.+)?$/gim;
 
 class MusicUtil {
@@ -163,6 +164,20 @@ class MusicUtil {
 
       // url validation
       switch (true) {
+        // youtube playlist
+        case !!query?.match?.(youtubePlaylistRegex)?.length: {
+          const playlist = await this.#pushPlaylistIntoQueue(query);
+          if (!playlist?.length) return null;
+
+          // push everything from the playlist to the queue
+          playlist.forEach((content) => this.#saveQueue(voiceState.guildID, voiceState.userID, content));
+          
+          // play first content
+          this.#privatePlay(voiceState, this.#safeytdl(playlist[0]));
+
+          return query;
+        };
+
         // youtube
         case !!query?.match?.(youtubeRegex)?.length: {
           if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, query);
@@ -365,6 +380,28 @@ class MusicUtil {
     } catch (error) {
       console.error(error);
       return false;
+    };
+  };
+
+  async #pushPlaylistIntoQueue(url: string) {
+    try {
+      switch (true) {
+        // youtube playlist
+        case !!url?.match?.(youtubePlaylistRegex)?.length: {
+          const ytPlaylistID = new URL(url).searchParams?.get("list");
+          if (!ytPlaylistID) return null;
+  
+          const list = await ytSearch({listId: ytPlaylistID});
+          if (!list?.videos?.length) return null;
+  
+          return list.videos.map(val => "https://youtu.be/" + val.videoId);
+        };
+
+        default: return null;
+      };
+    } catch (error) {
+      console.error(error);
+      return null;
     };
   };
 
