@@ -6,7 +6,7 @@ export const config: CommandConfig = {
 };
 
 export const info: CommandInfo = {
-  description: "Pause or resume the music player."
+  description: "Pause the music player."
 };
 
 export const run = async (client:  Client, interaction: CommandInteraction<AnyGuildTextChannel>) => {
