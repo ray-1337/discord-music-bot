@@ -2,7 +2,7 @@ import { VoiceState } from "oceanic.js";
 import { search as ytSearch } from "yt-search";
 import ytdl, { downloadOptions as ytdlDO, validateURL as validateYTURL } from "ytdl-core";
 import { createAudioPlayer, StreamType, createAudioResource, AudioResource, AudioPlayer, VoiceConnection, AudioPlayerStatus, joinVoiceChannel } from "@discordjs/voice";
-import validator from "validator";
+import isURL from "validator/lib/isURL";
 import { Readable } from "node:stream";
 import ms from "ms";
 import { request } from "undici";
@@ -11,8 +11,6 @@ import { spawn } from "node:child_process";
 // soundcloud management
 import { create as scdlContent } from "soundcloud-downloader";
 const scdl = scdlContent({ clientID: process.env?.SOUNDCLOUD_CLIENT_ID });
-
-const { isURL } = validator;
 
 export const appropriateContentType = /(audio\/(mp3|ogg|webm|mpeg3?))|(application\/octet-stream)|(video\/mp4)/gi;
 
