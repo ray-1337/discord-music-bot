@@ -64,6 +64,8 @@ class MusicUtil {
       this.skip(guildID, true);
     });
 
+    musicData.delete(guildID);
+
     try {
       // bozo
       voiceConnection.destroy();
