@@ -162,17 +162,26 @@ class MusicUtil {
 
       // url validation
       switch (true) {
-        // youtube playlist
+        // playlist
+        case scdl.isPlaylistURL(query):
         case !!query?.match?.(youtubePlaylistRegex)?.length: {
           const playlist = await this.#pushPlaylistIntoQueue(query);
           if (!playlist?.length) return null;
 
           // push everything from the playlist to the queue
           playlist.forEach((content) => this.#saveQueue(voiceState.guildID, voiceState.userID, content));
+
+          // soundcloud playlist
+          if (scdl.isPlaylistURL(query)) {
+            const scPlaylist = await this.#safeSoundCloud(playlist[0]);
+            if (!scPlaylist) return null;
+
+            this.#privatePlay(voiceState, scPlaylist);
+            return query;
+          };
           
           // play first content
           this.#privatePlay(voiceState, this.#safeytdl(playlist[0]));
-
           return query;
         };
 
@@ -404,6 +413,18 @@ class MusicUtil {
           if (!list?.videos?.length) return null;
   
           return list.videos.map(val => "https://youtu.be/" + val.videoId);
+        };
+
+        // soundcloud playlist
+        case scdl.isPlaylistURL(url): {
+          const scPlaylist = await scdl.getSetInfo(url);
+          if (!scPlaylist?.tracks?.length) return null;
+
+          return scPlaylist.tracks
+          .map(val => val.permalink_url)
+          .filter(<T>(argument: T | undefined): argument is T => {
+            return argument !== undefined;
+          });
         };
 
         default: return null;
