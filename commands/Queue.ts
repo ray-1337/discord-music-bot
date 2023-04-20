@@ -26,7 +26,7 @@ export const run = async (client: Client, interaction: CommandInteraction) => {
     if (!queue?.length) return interaction.createFollowup({content: "No player content is playing right now."});
   
     let index = 0, limit = 10;
-    let pages = chunk(queue.map((song, i) => `\`${i + 1}\`. ${song.url}`), limit);
+    let pages = chunk(queue.map((song, i) => `\`${i + 1}\`. ${song.url} ${player?.currentQueue?.url === song.url ? "▶️" : ""}`), limit);
   
     const embed = new RichEmbed()
     .setColor(0x7289DA)
