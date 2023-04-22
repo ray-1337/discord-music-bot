@@ -20,3 +20,10 @@ export function chunk(array: any[], chunkSize: number) {
 
   return temp;
 };
+
+// 60 -> 01:00
+export function millisToMinutesAndSeconds(_ms: number) { 
+  const minutes = Math.floor(_ms / 60000);
+  const seconds = ((_ms % 60000) / 1000).toFixed(0);
+  return (+minutes < 10 ? '0' + minutes : '') + ":" + (+seconds < 10 ? '0' : '') + seconds;
+};

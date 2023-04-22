@@ -1,6 +1,7 @@
 import { Client, CommandInteraction, AnyGuildTextChannel } from "oceanic.js";
 import Music from "../state/Music";
 import { EmbedBuilder } from "@oceanicjs/builders";
+import { millisToMinutesAndSeconds } from "../state/Utility";
 
 export const config: CommandConfig = {
   cooldown: 5
@@ -32,12 +33,6 @@ export const run = async (client:  Client, interaction: CommandInteraction<AnyGu
 
     const current = await Music.trackInfo(player.currentQueue.url);
     if (!current) return interaction.createFollowup({content: `<@${player.currentQueue.requesterID}> — ${player.currentQueue.url} ${loopIcon()}`});
-
-    function millisToMinutesAndSeconds(_ms: number) { 
-      const minutes = Math.floor(_ms / 60000);
-      const seconds = ((_ms % 60000) / 1000).toFixed(0);
-      return (+minutes < 10 ? '0' + minutes : '') + ":" + (+seconds < 10 ? '0' : '') + seconds;
-    };
 
     const embed = new EmbedBuilder()
     .setColor(current.embed_color)
