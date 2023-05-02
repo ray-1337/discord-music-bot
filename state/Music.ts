@@ -482,7 +482,8 @@ class MusicUtil {
     const downloadOptions: ytdlDO = {
       filter: "audioonly",
       quality: "lowestaudio",
-      highWaterMark
+      highWaterMark,
+      dlChunkSize: 0
     };
 
     return ytdl(query, downloadOptions);
