@@ -1,5 +1,5 @@
 import { Client, CommandInteraction, ApplicationCommandOptionsWithValue, Constants, AnyGuildTextChannel, VoiceChannel } from "oceanic.js";
-import Music, { PlayerAvailability, appropriateContentType } from "../state/Music";
+import Music, { PlayerAvailability, appropriateContentType, ContentErrorEnum } from "../state/Music";
 import { awaitComponentInteraction } from "oceanic-collectors";
 import ms from "ms";
 
@@ -137,6 +137,10 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyGui
         return interaction.editFollowup(choosingQuery.id, { content: "Failed to retrieve chosen content.", components: [] });
       };
 
+      // track check before enter
+      const contentCheck = await Music.trackCheck(finalChoose[0]);
+      if (contentCheck !== ContentErrorEnum.GOOD) return interaction.editFollowup(choosingQuery.id, { content: Music.explainContentError(contentCheck), components: [] });
+
       const player = await Music.play(userVoiceState, finalChoose[0], undefined, provider);
       if (!player) return interaction.editFollowup(choosingQuery.id, {
         components: [],
@@ -146,7 +150,13 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyGui
       return interaction.editFollowup(choosingQuery.id, { content: `Successfully added **${player}** to queue.`, components: [] });
     };
 
-    const player = await Music.play(userVoiceState, String(file?.proxyURL || query), undefined, provider);
+    const finalContent = String(file?.proxyURL || query);
+    const contentCheck = await Music.trackCheck(finalContent);
+    if (contentCheck !== ContentErrorEnum.GOOD) {
+      return interaction.createFollowup({content: Music.explainContentError(contentCheck)});
+    };
+
+    const player = await Music.play(userVoiceState, finalContent, undefined, provider);
     if (!player) return interaction.createFollowup({content: "Unable to play song due to lacking of information, copyright, deleted content, the duration is too long, and many more."});
 
     return interaction.createFollowup({content: `Successfully added **${player}** to queue.`});

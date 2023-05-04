@@ -32,6 +32,15 @@ const youtubeShortRegex = /https?:\/\/(?:www\.)?youtube\.com\/shorts\/(.{10,13})
 const youtubePlaylistRegex = /^http(?:s)?:\/\/(?:www\.)?youtube\.com\/playlist\?list=(PL[a-zA-Z0-9_-]{1,})/gim;
 const soundCloudRegex = /^(?:https?:\/\/)((?:www\.)|(?:m\.))?soundcloud\.com\/[a-z0-9](?!.*?(-|_){2})[\w-]{1,23}[a-z0-9](?:\/.+)?$/gim;
 
+export enum ContentErrorEnum {
+  GOOD,
+  AGE_RESTRICTED, // often related with 410 error
+  UNKNOWN,
+  TOO_LONG,
+  PRIVATE,
+  ERROR
+};
+
 class MusicUtil {
   constructor() { };
   // expose music configuration
@@ -75,6 +84,45 @@ class MusicUtil {
     loopedQuery.delete(guildID); // remove loop queue
 
     return true;
+  };
+
+  explainContentError(_enum: ContentErrorEnum): string {
+    switch (_enum) {
+      case ContentErrorEnum.AGE_RESTRICTED: return "The current content is probably age-restricted.";
+      case ContentErrorEnum.UNKNOWN: return "Unable to retrieve the content for some reason, the error will be logged on console.";
+      case ContentErrorEnum.TOO_LONG: return "The duration of the current content is too long.";
+      case ContentErrorEnum.PRIVATE: return "The current video is private.";
+      case ContentErrorEnum.ERROR: return "Critical error occurred, the error will be logged on console.";
+      case ContentErrorEnum.GOOD: default: return "";
+    };
+  };
+
+  // yt track check
+  async trackCheck(query: string): Promise<ContentErrorEnum> {
+    try {
+      switch (true) {
+        case validateYTURL(query): {
+          const content = await ytdl.getBasicInfo(query);
+          if (!content?.videoDetails) return ContentErrorEnum.UNKNOWN;
+
+          switch (true) {
+            case content.videoDetails.age_restricted: return ContentErrorEnum.AGE_RESTRICTED;
+            case content.videoDetails.isPrivate: return ContentErrorEnum.PRIVATE;
+            case +content.videoDetails.lengthSeconds >= Math.round(durationLimit / 1000): return ContentErrorEnum.TOO_LONG;
+            default: return ContentErrorEnum.GOOD;
+          };
+        };
+
+        default: return ContentErrorEnum.GOOD;
+      };
+    } catch (error) {
+      if (String(error).indexOf("410") !== -1) {
+        return ContentErrorEnum.AGE_RESTRICTED;
+      } else {
+        console.error(error);
+        return ContentErrorEnum.ERROR;
+      };
+    };
   };
 
   // search through lots
