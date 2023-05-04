@@ -102,11 +102,16 @@ class MusicUtil {
     try {
       switch (true) {
         case validateYTURL(query): {
-          const content = await ytdl.getBasicInfo(query);
+          const content = await ytdl.getBasicInfo(query, {
+            requestOptions: process.env?.YOUTUBE_COOKIE ? {
+              headers: { cookie: process.env.YOUTUBE_COOKIE }
+            } : {}
+          });
+
           if (!content?.videoDetails) return ContentErrorEnum.UNKNOWN;
 
           switch (true) {
-            case content.videoDetails.age_restricted: return ContentErrorEnum.AGE_RESTRICTED;
+            case content.videoDetails.age_restricted && !process.env?.YOUTUBE_COOKIE: return ContentErrorEnum.AGE_RESTRICTED;
             case content.videoDetails.isPrivate: return ContentErrorEnum.PRIVATE;
             case +content.videoDetails.lengthSeconds >= Math.round(durationLimit / 1000): return ContentErrorEnum.TOO_LONG;
             default: return ContentErrorEnum.GOOD;
@@ -531,7 +536,10 @@ class MusicUtil {
       filter: "audioonly",
       quality: "lowestaudio",
       highWaterMark,
-      dlChunkSize: 0
+      dlChunkSize: 0,
+      requestOptions: process.env?.YOUTUBE_COOKIE ? {
+        headers: { cookie: process.env.YOUTUBE_COOKIE }
+      } : {}
     };
 
     return ytdl(query, downloadOptions);
