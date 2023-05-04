@@ -59,10 +59,14 @@ export default async function (client: Client) {
       };
     };
 
-    await client.rest.applicationCommands.bulkEditGuildCommands(client.user.id, process.env.PERSONALIZED_GUILD_ID!, finaleCommand);
+    if (client.guilds.size) {
+      // if your bot is big, replace this line below with .bulkEditGlobalCommands instead
+      for await (const guild of client.guilds.toArray()) {
+        await client.rest.applicationCommands.bulkEditGuildCommands(client.user.id, guild.id, finaleCommand);
+      };
 
-    // log, its not neccesary
-    return console.log(`Generated slash commands for ${Math.round(performance.now() - firstTime).toLocaleString()} ms.`);
+      return console.log(`Generated slash commands for ${client.guilds.size} guilds for ${Math.round(performance.now() - firstTime).toLocaleString()} ms.`);
+    };
   } catch (error) {
     console.error(error);
     return process.exit(1);
