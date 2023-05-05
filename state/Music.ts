@@ -166,12 +166,12 @@ class MusicUtil {
   };
 
   // get track info
-  async trackInfo(query: string): Promise<{ title: string; url: string; duration: number; thumbnail: string; embed_color: number } | null> {
+  async trackInfo(query: string): Promise<{ title: string; url: string; duration: number; thumbnail: string; embed_color: number; authorName?: string; authorAvatar?: string; authorURL?: string } | null> {
     try {
       switch (true) {
         // soundcloud
         case scdl.isValidUrl(query): {
-          const {title, permalink_url, full_duration, artwork_url} = await scdl.getInfo(query);
+          const {title, permalink_url, full_duration, artwork_url, user} = await scdl.getInfo(query);
           if (!title || !permalink_url || !artwork_url) return null;
 
           return {
@@ -179,7 +179,10 @@ class MusicUtil {
             url: permalink_url,
             duration: full_duration || 0,
             thumbnail: artwork_url.replace("large", "t500x500"),
-            embed_color: 0xF26F23
+            embed_color: 0xF26F23,
+            authorAvatar: user?.avatar_url,
+            authorName: user?.username,
+            authorURL: user?.permalink_url
           };
         };
 
@@ -188,14 +191,17 @@ class MusicUtil {
           const {videoDetails} = await ytdl.getInfo(query);
           if (!videoDetails) return null;
 
-          const { title, video_url, lengthSeconds, videoId } = videoDetails;
+          const { title, video_url, lengthSeconds, videoId, author } = videoDetails;
 
           return {
             title,
             url: video_url,
             duration: ms(lengthSeconds + "s"),
             thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
-            embed_color: 0xFF0000
+            embed_color: 0xFF0000,
+            authorAvatar: author?.thumbnails?.[0]?.url,
+            authorName: author?.name,
+            authorURL: author?.user_url || author?.channel_url
           };
         };
 

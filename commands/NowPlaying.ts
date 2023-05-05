@@ -40,7 +40,11 @@ export const run = async (client:  Client, interaction: CommandInteraction<AnyGu
     .setURL(current.url)
     .setImage(current.thumbnail)
     .addField("Track Duration", millisToMinutesAndSeconds(current.duration), true)
-    .addField("Requested", `<@${player.currentQueue.requesterID}>`)
+    .addField("Requested", `<@${player.currentQueue.requesterID}>`);
+
+    if (current?.authorName?.length) {
+      embed.setAuthor(current.authorName, current.authorAvatar, current.authorURL);
+    };
 
     const queue = Music.queue(interaction.guildID);
     if (queue?.length > 1) {
