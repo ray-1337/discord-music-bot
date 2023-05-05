@@ -39,7 +39,7 @@ export const run = async (client:  Client, interaction: CommandInteraction<AnyGu
     .setTitle(current.title)
     .setURL(current.url)
     .setImage(current.thumbnail)
-    .addField("Track Duration", millisToMinutesAndSeconds(current.duration), true)
+    .addField("Track Duration", `${millisToMinutesAndSeconds(current.currentDuration)}/${millisToMinutesAndSeconds(current.duration)}`, true)
     .addField("Requested", `<@${player.currentQueue.requesterID}>`);
 
     if (current?.authorName?.length) {

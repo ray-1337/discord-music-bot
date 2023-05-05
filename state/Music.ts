@@ -14,7 +14,9 @@ const scdl = scdlContent({ clientID: process.env?.SOUNDCLOUD_CLIENT_ID });
 
 export const appropriateContentType = /(audio\/(mp3|ogg|webm|mpeg3?))|(application\/octet-stream)|(video\/mp4)/gi;
 
+// time management
 const durationLimit = ms("6h"); // 6 hours
+let [currentContentStartTime, currentContentCheckpointTime]: Array<number | null> = [null, null];
 
 // music state
 const musicData: GuardedMap<string, MusicDataInference[]> = new Map();
@@ -82,6 +84,9 @@ class MusicUtil {
     musicConnection.delete(guildID);
     loopMusic.delete(guildID); // remove loop state
     loopedQuery.delete(guildID); // remove loop queue
+
+    currentContentStartTime = null;
+    currentContentCheckpointTime = null;
 
     return true;
   };
@@ -166,8 +171,16 @@ class MusicUtil {
   };
 
   // get track info
-  async trackInfo(query: string): Promise<{ title: string; url: string; duration: number; thumbnail: string; embed_color: number; authorName?: string; authorAvatar?: string; authorURL?: string } | null> {
+  async trackInfo(query: string): Promise<{ title: string; url: string; duration: number; currentDuration: number; thumbnail: string; embed_color: number; authorName?: string; authorAvatar?: string; authorURL?: string } | null> {
     try {
+      const cursedDurationCalculation = () => {
+        if (currentContentCheckpointTime) {
+          return currentContentCheckpointTime;
+        } else {
+          return Date.now() - (currentContentStartTime || 0);
+        };
+      };
+
       switch (true) {
         // soundcloud
         case scdl.isValidUrl(query): {
@@ -180,6 +193,7 @@ class MusicUtil {
             duration: full_duration || 0,
             thumbnail: artwork_url.replace("large", "t500x500"),
             embed_color: 0xF26F23,
+            currentDuration: cursedDurationCalculation(),
             authorAvatar: user?.avatar_url,
             authorName: user?.username,
             authorURL: user?.permalink_url
@@ -199,6 +213,7 @@ class MusicUtil {
             duration: ms(lengthSeconds + "s"),
             thumbnail: thumbnails.pop()?.url || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
             embed_color: 0xFF0000,
+            currentDuration: cursedDurationCalculation(),
             authorAvatar: author?.thumbnails?.[0]?.url,
             authorName: author?.name,
             authorURL: author?.user_url || author?.channel_url
@@ -242,6 +257,11 @@ class MusicUtil {
   pause(guildID: string) {
     if (!musicConnection.has(guildID)) return false;
     const { audioPlayer } = musicConnection.get(guildID);
+
+    if (currentContentStartTime !== null) {
+      currentContentCheckpointTime = Date.now() - currentContentStartTime;
+    };
+
     return audioPlayer.pause(true);
   };
 
@@ -249,6 +269,12 @@ class MusicUtil {
   resume(guildID: string) {
     if (!musicConnection.has(guildID)) return false;
     const { audioPlayer } = musicConnection.get(guildID);
+
+    if (currentContentStartTime !== null && currentContentCheckpointTime !== null) {
+      currentContentStartTime = Date.now() - currentContentCheckpointTime;
+      currentContentCheckpointTime = null;
+    };
+
     return audioPlayer.unpause();
   };
 
@@ -426,6 +452,8 @@ class MusicUtil {
   async skip(guildID: string, forced?: boolean) {
     if (typeof forced == "undefined") forced = false;
 
+    currentContentStartTime = 0;
+
     try {
       if (!musicConnection.has(guildID)) return false;
       const { audioPlayer, voiceState } = musicConnection.get(guildID);
@@ -596,6 +624,8 @@ class MusicUtil {
       console.error(error);
       this.skip(guildID, true);
     });
+
+    currentContentStartTime = Date.now();
 
     return;
   };
