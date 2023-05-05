@@ -191,13 +191,13 @@ class MusicUtil {
           const {videoDetails} = await ytdl.getInfo(query);
           if (!videoDetails) return null;
 
-          const { title, video_url, lengthSeconds, videoId, author } = videoDetails;
+          const { title, video_url, lengthSeconds, videoId, author, thumbnails } = videoDetails;
 
           return {
             title,
             url: video_url,
             duration: ms(lengthSeconds + "s"),
-            thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+            thumbnail: thumbnails.pop()?.url || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
             embed_color: 0xFF0000,
             authorAvatar: author?.thumbnails?.[0]?.url,
             authorName: author?.name,
