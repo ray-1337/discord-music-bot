@@ -306,16 +306,23 @@ class MusicUtil {
             this.#privatePlay(voiceState, scPlaylist);
             return query;
           };
-          
+
           // play first content
-          this.#privatePlay(voiceState, this.#safeytdl(playlist[0]));
+          const _ytdl = await this.#safeytdl(playlist[0]);
+          if (!_ytdl) return null;
+          this.#privatePlay(voiceState, _ytdl);
+
           return query;
         };
 
         // youtube
         case !!query?.match?.(youtubeRegex)?.length: {
           if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, query);
-          this.#privatePlay(voiceState, this.#safeytdl(query));
+
+          const _ytdl = await this.#safeytdl(query);
+          if (!_ytdl) return null;
+          this.#privatePlay(voiceState, _ytdl);
+
           return query;
         };
 
@@ -438,7 +445,11 @@ class MusicUtil {
           ) return null;
 
           if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, search.videos[0].url);
-          this.#privatePlay(voiceState, this.#safeytdl(search.videos[0].url));
+
+          const _ytdl = await this.#safeytdl(search.videos[0].url);
+          if (!_ytdl) return null;
+          this.#privatePlay(voiceState, _ytdl);
+
           return search.videos[0].url;
         };
       };
@@ -562,21 +573,35 @@ class MusicUtil {
     };
   };
 
-  #safeytdl(query: string) {
+  async #safeytdl(query: string, oneMoreTime?: boolean): Promise<Readable | null> {
     // i set higher so it can play audio smoothly, you can make it higher if you have a huge memory usage
     const highWaterMark = 1 << 26;
+
+    const requestOptions = process.env?.YOUTUBE_COOKIE ? {
+      headers: { cookie: process.env.YOUTUBE_COOKIE }
+    } : {};
 
     const downloadOptions: ytdlDO = {
       filter: "audioonly",
       quality: "lowestaudio",
       highWaterMark,
       dlChunkSize: 0,
-      requestOptions: process.env?.YOUTUBE_COOKIE ? {
-        headers: { cookie: process.env.YOUTUBE_COOKIE }
-      } : {}
+      requestOptions
     };
 
-    return ytdl(query, downloadOptions);
+    try {
+      const contentInfo = await ytdl.getInfo(query, { requestOptions });
+      if (!contentInfo) return null;
+
+      return ytdl.downloadFromInfo(contentInfo, downloadOptions);
+    } catch (error) {
+      if (String(error).match("403") && !oneMoreTime) {
+        await new Promise(r => setTimeout(r, 1000));
+        return await this.#safeytdl(query, true);
+      };
+
+      return null;
+    };
   };
 
   // private function
