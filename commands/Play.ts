@@ -15,7 +15,7 @@ export const args: ApplicationCommandOptionsWithValue[] = [
   {
     name: "query",
     type: Constants.ApplicationCommandOptionTypes.STRING,
-    description: "A song query, YouTube url, or a URL of file.",
+    description: "A song query, YouTube/TikTok/SoundCloud url, or a URL of file.",
     required: false
   },
   {
