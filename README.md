@@ -15,8 +15,8 @@ I use:
 - [oceanic](https://npmjs.com/oceanic.js) for the Discord library.
 - [ytdl-core](https://npmjs.com/ytdl-core) and [yt-search](https://npmjs.com/yt-search) for retrieving YouTube contents.
 - [@discordjs/voice](https://npmjs.com/@discordjs/voice) for Discord voice state management.
-- [ffmpeg](https://ffmpeg.org) for video converting.
-- [libmp3lame](https://trac.ffmpeg.org/wiki/Encode/MP3) for video-to-MP3 convert.
+- [ffmpeg](https://ffmpeg.org) for video/audio management.
+- [libmp3lame](https://trac.ffmpeg.org/wiki/Encode/MP3) to encode video to mp3, helped with `ffmpeg`.
 - [soundcloud-downloader](https://www.npmjs.com/soundcloud-downloader) for retrieving SoundCloud contents.
 - [@tobyg74/tiktok-api-dl](https://www.npmjs.com/package/@tobyg74/tiktok-api-dl) for retrieving TikTok contents.
 
