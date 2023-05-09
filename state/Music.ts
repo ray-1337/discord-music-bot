@@ -7,6 +7,7 @@ import { Readable } from "node:stream";
 import ms from "ms";
 import { request } from "undici";
 import { spawn } from "node:child_process";
+import { TiktokDL } from "@tobyg74/tiktok-api-dl";
 
 // soundcloud management
 import { create as scdlContent } from "soundcloud-downloader";
@@ -33,6 +34,7 @@ const youtubeRegex = /(https?:\/\/(?:www\.)?((?:youtu\.be\/.{4,16})|(youtube\.co
 const youtubeShortRegex = /https?:\/\/(?:www\.)?youtube\.com\/shorts\/(.{10,13})/im;
 const youtubePlaylistRegex = /^http(?:s)?:\/\/(?:www\.)?youtube\.com\/playlist\?list=(PL[a-zA-Z0-9_-]{1,})/gim;
 const soundCloudRegex = /^(?:https?:\/\/)((?:www\.)|(?:m\.))?soundcloud\.com\/[a-z0-9](?!.*?(-|_){2})[\w-]{1,23}[a-z0-9](?:\/.+)?$/gim;
+const tiktokVideoRegex = /(?:http(?:s)?:\/\/)?(?:(?:www)\.(?:tiktok\.com)(?:\/)(?!foryou)(@[a-zA-z0-9]+)(?:\/)(?:video)(?:\/)([\d]+)|(?:m)\.(?:tiktok\.com)(?:\/)(?!foryou)(?:v)(?:\/)?(?=([\d]+)\.html))/gim;
 
 // youtube (ytdl-core) header
 const requestOptions = process.env?.YOUTUBE_COOKIE ? {
@@ -341,6 +343,17 @@ class MusicUtil {
           return query;
         };
 
+        // tiktok video (temp)
+        case !!query?.match?.(tiktokVideoRegex)?.length: {
+          const trackDownload = await this.#safeTiktok(query);
+          if (!trackDownload) return null;
+
+          if (!disableQueuing) this.#saveQueue(voiceState.guildID, voiceState.userID, query);
+  
+          this.#privatePlay(voiceState, trackDownload);
+          return query;
+        };
+        
         // raw URL
         case isURL(query): {
           try {
@@ -572,6 +585,13 @@ class MusicUtil {
       console.error(error);
       return null;
     };
+  };
+
+  async #safeTiktok(query: string) {
+    const video = await TiktokDL(query);
+    if (!video?.result?.music?.length) return null;
+
+    return video.result.music[0];
   };
 
   async #safeytdl(query: string): Promise<Readable | null> {
