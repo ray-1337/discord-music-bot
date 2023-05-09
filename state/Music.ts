@@ -588,10 +588,15 @@ class MusicUtil {
   };
 
   async #safeTiktok(query: string) {
-    const video = await TiktokDL(query);
-    if (!video?.result?.music?.length) return null;
+    try {
+      const video = await TiktokDL(query);
+      if (!video?.result?.music?.length) return null;
 
-    return video.result.music[0];
+      return video.result.music[0];
+    } catch (error) {
+      console.error(error);
+      return null;
+    };
   };
 
   async #safeytdl(query: string): Promise<Readable | null> {
