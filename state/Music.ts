@@ -574,7 +574,7 @@ class MusicUtil {
     };
   };
 
-  async #safeytdl(query: string, oneMoreTime?: boolean): Promise<Readable | null> {
+  async #safeytdl(query: string): Promise<Readable | null> {
     // i set higher so it can play audio smoothly, you can make it higher if you have a huge memory usage
     const highWaterMark = 1 << 26;
 
@@ -592,11 +592,7 @@ class MusicUtil {
 
       return ytdl.downloadFromInfo(contentInfo, downloadOptions);
     } catch (error) {
-      if (String(error).match("403") && !oneMoreTime) {
-        await new Promise(r => setTimeout(r, 1000));
-        return await this.#safeytdl(query, true);
-      };
-
+      console.error(error);
       return null;
     };
   };
@@ -643,8 +639,15 @@ class MusicUtil {
     audioPlayer
     .on(AudioPlayerStatus.Idle, () => this.skip(guildID))
     .on("error", (error) => {
+      if (error.message.match("403") && musicData.has(guildID)) {
+        // console.log("error 403 successfully encountered here");
+
+        setTimeout(() => this.play(voiceState, musicData.get(guildID)[0].url, true), ms("2s"));
+        return;
+      };
+
       console.error(error);
-      this.skip(guildID, true);
+      return this.skip(guildID, true);
     });
 
     currentContentStartTime = Date.now();
