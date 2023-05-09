@@ -37,7 +37,7 @@ I extended this project with more features, such as:
 - Supports SoundCloud.
 - Supports playing with .mp3 file.
 - Supports playing with .mp4 file.
-- Supports [age-restriction bypass](https://github.com/fent/node-ytdl-core/blob/master/example/cookies.js) (YouTube platform only)
+- Supports [age-restriction bypass](guide/bypass.md) (YouTube platform only)
 - Supports application/octet-stream.
   - For example, converting [video from TikTok to audio](https://ssstik.io/download-tiktok-mp3), and then copy the URL.
     - Tested URL from [ssstik.io](https://ssstik.io/download-tiktok-mp3), [savefrom.net](https://en.savefrom.net/), [fdown.net](https://fdown.net)
