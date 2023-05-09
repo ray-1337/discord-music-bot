@@ -32,6 +32,7 @@ I use:
 ## What's so good about it?
 I extended this project with more features, such as:
 - Supports YouTube, that's obvious.
+- Supports search mode using Discord dropdown component, by using `/play search-mode: true`
 - Supports playing contents from the playlist.
 - Supports SoundCloud.
 - Supports playing with .mp3 file.
@@ -41,6 +42,7 @@ I extended this project with more features, such as:
   - For example, converting [video from TikTok to audio](https://ssstik.io/download-tiktok-mp3), and then copy the URL.
     - Tested URL from [ssstik.io](https://ssstik.io/download-tiktok-mp3), [savefrom.net](https://en.savefrom.net/), [fdown.net](https://fdown.net)
 - Auto-disconnect when no one's in voice channel.
+- Auto-retry if error occurred, especially [403 error from ytdl-core](https://github.com/fent/node-ytdl-core/issues/417).
 
 ## Can I use this too?
 Yeah, sure. I don't mind. You can recreate your own command handler, do your things here.
