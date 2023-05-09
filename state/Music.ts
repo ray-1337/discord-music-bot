@@ -34,6 +34,11 @@ const youtubeShortRegex = /https?:\/\/(?:www\.)?youtube\.com\/shorts\/(.{10,13})
 const youtubePlaylistRegex = /^http(?:s)?:\/\/(?:www\.)?youtube\.com\/playlist\?list=(PL[a-zA-Z0-9_-]{1,})/gim;
 const soundCloudRegex = /^(?:https?:\/\/)((?:www\.)|(?:m\.))?soundcloud\.com\/[a-z0-9](?!.*?(-|_){2})[\w-]{1,23}[a-z0-9](?:\/.+)?$/gim;
 
+// youtube (ytdl-core) header
+const requestOptions = process.env?.YOUTUBE_COOKIE ? {
+  headers: { cookie: process.env.YOUTUBE_COOKIE }
+} : {};
+
 export enum ContentErrorEnum {
   GOOD,
   AGE_RESTRICTED, // often related with 410 error
@@ -107,11 +112,7 @@ class MusicUtil {
     try {
       switch (true) {
         case validateYTURL(query): {
-          const content = await ytdl.getBasicInfo(query, {
-            requestOptions: process.env?.YOUTUBE_COOKIE ? {
-              headers: { cookie: process.env.YOUTUBE_COOKIE }
-            } : {}
-          });
+          const content = await ytdl.getBasicInfo(query, {requestOptions});
 
           if (!content?.videoDetails) return ContentErrorEnum.UNKNOWN;
 
@@ -202,7 +203,7 @@ class MusicUtil {
 
         // youtube
         case validateYTURL(query): {
-          const {videoDetails} = await ytdl.getInfo(query);
+          const {videoDetails} = await ytdl.getInfo(query, {requestOptions});
           if (!videoDetails) return null;
 
           const { title, video_url, lengthSeconds, videoId, author, thumbnails } = videoDetails;
@@ -576,10 +577,6 @@ class MusicUtil {
   async #safeytdl(query: string, oneMoreTime?: boolean): Promise<Readable | null> {
     // i set higher so it can play audio smoothly, you can make it higher if you have a huge memory usage
     const highWaterMark = 1 << 26;
-
-    const requestOptions = process.env?.YOUTUBE_COOKIE ? {
-      headers: { cookie: process.env.YOUTUBE_COOKIE }
-    } : {};
 
     const downloadOptions: ytdlDO = {
       filter: "audioonly",
