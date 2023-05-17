@@ -4,6 +4,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+      timezone: "Asia/Jakarta"
     assignees:
       - "ray-1337"
     commit-message:
