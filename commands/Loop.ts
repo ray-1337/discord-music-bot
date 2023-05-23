@@ -29,10 +29,7 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyGui
       return interaction.createFollowup({content: "Lack of data. Try again later."});
     };
 
-    let content = interaction?.data?.options;
-    if (!content) return interaction.createFollowup({content: "Unknown command interaction. Try again later."});
-
-    let type: loopState | "off" = content.getString("type", true);
+    let type = interaction.data.options.getString<loopState | "off">("type", true);
 
     let userVoiceState = interaction.member.voiceState;
     if (!userVoiceState?.channelID) return interaction.createFollowup({content: "You must be connected to a voice channel. "});
