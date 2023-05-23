@@ -48,13 +48,10 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyGui
       return interaction.createFollowup({content: "Lack of data. Try again later."});
     };
 
-    let content = interaction?.data?.options;
-    if (!content) return interaction.createFollowup({content: "Unknown command interaction. Try again later."});
-
-    let query = content.getString("query");
-    let file = content.getAttachment("file");
-    let provider = content.getString<PlayerAvailability>("provider");
-    let searchMode = content.getBoolean("search-mode", false);
+    let query = interaction.data.options.getString("query");
+    let file = interaction.data.options.getAttachment("file");
+    let provider = interaction.data.options.getString<PlayerAvailability>("provider");
+    let searchMode = interaction.data.options.getBoolean("search-mode", false);
 
     if (!query && !file) {
       return interaction.createFollowup({content: "Unknown audio query. Choose at least `query` or `file` option."});
