@@ -46,6 +46,13 @@ I extended this project with more features, such as:
 - Auto-disconnect when no one's in voice channel.
 - Auto-retry if error occurred, especially [403 error from ytdl-core](https://github.com/fent/node-ytdl-core/issues/417).
 
+## Known unresolved bugs
+Yes, there is bugs in this repository, but that wasn't caused by me, I swear. <br/>
+And, these bugs can be temporarily fixed by restarting the instance.
+- Sometimes, pause command doesn't pause the music.
+- TikTok remains unplayable after few plays.
+- Sometimes, `ytdl` doesn't play anything at all.
+
 ## Can I use this too?
 Yeah, sure. I don't mind. You can recreate your own command handler, do your things here.
 
