@@ -46,28 +46,13 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyGui
     const player = Music.state(interaction.guildID);
     if (!player?.currentQueue) return interaction.createFollowup({content: "No players available."});
 
-    Music.loop(interaction.guildID, type);  
+    Music.loop(interaction.guildID, type);
 
-    let message!: string;
-
-    switch (type) {
-      case "single": {
-        message = "The current queue will be repeated."
-        break;
-      };
-
-      case "whole": {
-        message = "The whole queue will be repeated.";
-        break;
-      };
-
-      case "off": {
-        message = "The repeat is disabled.";
-        break;
-      };
+    if (type === "single") {
+      return interaction.createFollowup({content: "The current queue will be repeated."});
+    } else {
+      return interaction.createFollowup({content: "The repeat is disabled."});
     };
-
-    return interaction.createFollowup({content: message});
   } catch (error) {
     console.log(error);
     return interaction.createFollowup({content: "An error occurred."});
