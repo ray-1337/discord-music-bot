@@ -698,8 +698,9 @@ class MusicUtil {
       if (error.message.match("403") && musicData.has(guildID)) {
         // console.log("error 403 successfully encountered here");
         const currentQueue = musicData.get(guildID);
-        if (currentQueue[0]) {
-          return setTimeout(() => this.play(voiceState, currentQueue[0].url, true), ms("2s"));
+        const tempURL = currentQueue?.[0].url;
+        if (tempURL) {
+          return setTimeout(() => this.play(voiceState, tempURL, true), ms("2s"));
         };
       };
 
