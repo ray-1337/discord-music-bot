@@ -9,7 +9,7 @@
   "license": "MPL-2.0",
   "devDependencies": {
     "@types/ms": "^0.7.31",
-    "@types/node": "^18.16.6",
+    "@types/node": "^18.16.17",
     "@types/validator": "^13.7.17",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
@@ -26,12 +26,12 @@
     "@oceanicjs/builders": "^1.1.7",
     "@tobyg74/tiktok-api-dl": "1.0.2-new",
     "cheerio": "1.0.0-rc.12",
-    "dotenv": "^16.1.3",
+    "dotenv": "^16.1.4",
     "ffmpeg-static": "^5.1.0",
     "ms": "^2.1.3",
     "oceanic-collectors": "^1.0.7",
     "pretty-ms": "^7.0.1",
-    "sodium-native": "^4.0.3",
+    "sodium-native": "^4.0.4",
     "soundcloud-downloader": "^1.0.0",
     "validator": "^13.9.0",
     "yt-search": "^2.10.4"
