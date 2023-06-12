@@ -7,7 +7,6 @@ import { Readable } from "node:stream";
 import ms from "ms";
 import { request } from "undici";
 import { spawn } from "node:child_process";
-import { TiktokDL } from "@tobyg74/tiktok-api-dl";
 import { load } from "cheerio";
 
 // soundcloud management
@@ -590,40 +589,34 @@ class MusicUtil {
 
   async #safeTiktok(query: string) {
     try {
-      const video = await TiktokDL(query);
-      if (!video?.result?.music?.length) {
-        // if none, we'll try to scrap it from someone's downloader
-        const host = "https://ttsave.app";
-        const headers = {
-          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
-          "content-type": "application/json"
-        };;
+      const host = "https://ttsave.app";
+      const headers = {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+        "content-type": "application/json"
+      };;
 
-        const keyScrapRequest = await request(host, { headers });
-        if (keyScrapRequest.statusCode >= 400) {
-          console.error(`unable to scrap tiktok content with error code ${keyScrapRequest.statusCode}`)
-          return null;
-        };
-
-        const keyScrapHTML = load(await keyScrapRequest.body.text());
-        const keyScrapHTMLMatching = keyScrapHTML('script[type="text/javascript"]').text().match(/key=([0-9a-f-]+)/);
-        const keyScrapFinal = keyScrapHTMLMatching?.[1];
-        if (!keyScrapFinal) return null;
-        
-        const trackDownload = await request(host + `/download?mode=audio&key=${keyScrapFinal}`, {headers, body: JSON.stringify({ id: query }), method: "POST"});
-        if (trackDownload.statusCode >= 400) {
-          console.error(`unable to download scrap afterwards tiktok content with error code ${trackDownload.statusCode}`);
-          return null;
-        };
-
-        const trackDownloadHTML = load(await trackDownload.body.text());
-        const trackDownloadHTMLmatching = trackDownloadHTML("a:contains('DOWNLOAD AUDIO (MP3)')").attr("href");
-        if (!trackDownloadHTMLmatching) return null;
-
-        return trackDownloadHTMLmatching;
+      const keyScrapRequest = await request(host, { headers });
+      if (keyScrapRequest.statusCode >= 400) {
+        console.error(`unable to scrap tiktok content with error code ${keyScrapRequest.statusCode}`)
+        return null;
       };
 
-      return video.result.music[0];
+      const keyScrapHTML = load(await keyScrapRequest.body.text());
+      const keyScrapHTMLMatching = keyScrapHTML('script[type="text/javascript"]').text().match(/key=([0-9a-f-]+)/);
+      const keyScrapFinal = keyScrapHTMLMatching?.[1];
+      if (!keyScrapFinal) return null;
+      
+      const trackDownload = await request(host + `/download?mode=audio&key=${keyScrapFinal}`, {headers, body: JSON.stringify({ id: query }), method: "POST"});
+      if (trackDownload.statusCode >= 400) {
+        console.error(`unable to download scrap afterwards tiktok content with error code ${trackDownload.statusCode}`);
+        return null;
+      };
+
+      const trackDownloadHTML = load(await trackDownload.body.text());
+      const trackDownloadHTMLmatching = trackDownloadHTML("a:contains('DOWNLOAD AUDIO (MP3)')").attr("href");
+      if (!trackDownloadHTMLmatching) return null;
+
+      return trackDownloadHTMLmatching;
     } catch (error) {
       console.error(error);
       return null;
