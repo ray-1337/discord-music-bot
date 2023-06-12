@@ -9,6 +9,14 @@ const Bot = new Client({
     intents: Constants.Intents.GUILD_VOICE_STATES | Constants.Intents.GUILDS
   },
   collectionLimits: {
+    auditLogEntries: 0,
+    autoModerationRules: 0,
+    channelThreads: 0,
+    groupChannels: 0,
+    guildThreads: 0,
+    integrations: 0,
+    privateChannels: 0,
+    scheduledEvents: 0,
     messages: 5 // message is not really necessary here
   }
 });
