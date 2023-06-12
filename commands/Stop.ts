@@ -1,4 +1,4 @@
-import { Client, CommandInteraction, AnyGuildTextChannel } from "oceanic.js";
+import { Client, CommandInteraction, AnyTextableGuildChannel } from "oceanic.js";
 import Music from "../state/Music";
 
 export const config: CommandConfig = {
@@ -9,7 +9,7 @@ export const info: CommandInfo = {
   description: "Stop the music player."
 };
 
-export const run = async (client:  Client, interaction: CommandInteraction<AnyGuildTextChannel>) => {
+export const run = async (client:  Client, interaction: CommandInteraction<AnyTextableGuildChannel>) => {
   try {
     if (!interaction.member || !interaction.guildID || !interaction.data.options) {
       return interaction.createFollowup({content: "Lack of data. Try again later."});

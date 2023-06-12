@@ -1,4 +1,4 @@
-import { Client, CommandInteraction, ApplicationCommandOptionsWithValue, Constants, AnyGuildTextChannel, VoiceChannel } from "oceanic.js";
+import { Client, CommandInteraction, ApplicationCommandOptionsWithValue, Constants, AnyTextableGuildChannel, VoiceChannel } from "oceanic.js";
 import Music, { PlayerAvailability, appropriateContentType, ContentErrorEnum } from "../state/Music";
 import { awaitComponentInteraction } from "oceanic-collectors";
 import ms from "ms";
@@ -42,7 +42,7 @@ export const args: ApplicationCommandOptionsWithValue[] = [
   },
 ];
 
-export const run = async (client: Client, interaction: CommandInteraction<AnyGuildTextChannel>) => {
+export const run = async (client: Client, interaction: CommandInteraction<AnyTextableGuildChannel>) => {
   try {
     if (!interaction.member || !interaction.guildID) {
       return interaction.createFollowup({content: "Lack of data. Try again later."});
