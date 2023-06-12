@@ -1,4 +1,4 @@
-import { Client, CommandInteraction, AnyGuildTextChannel } from "oceanic.js";
+import { Client, CommandInteraction, AnyTextableGuildChannel } from "oceanic.js";
 import Music from "../state/Music";
 import { EmbedBuilder } from "@oceanicjs/builders";
 import { millisToMinutesAndSeconds } from "../state/Utility";
@@ -11,7 +11,7 @@ export const info: CommandInfo = {
   description: "Display the current playing song."
 };
 
-export const run = async (client:  Client, interaction: CommandInteraction<AnyGuildTextChannel>) => {
+export const run = async (client:  Client, interaction: CommandInteraction<AnyTextableGuildChannel>) => {
   try {
     if (!interaction.member || !interaction.guildID || !interaction.data.options) {
       return interaction.createFollowup({content: "Lack of data. Try again later."});
