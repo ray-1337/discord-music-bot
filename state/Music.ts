@@ -259,13 +259,15 @@ class MusicUtil {
   // pause the player
   pause(guildID: string) {
     if (!musicConnection.has(guildID)) return false;
+
     const { audioPlayer } = musicConnection.get(guildID);
+    if (!audioPlayer) return false;
 
     if (currentContentStartTime !== null) {
       currentContentCheckpointTime = Date.now() - currentContentStartTime;
     };
 
-    return audioPlayer.pause(true);
+    return audioPlayer.pause();
   };
 
   // resume the player
