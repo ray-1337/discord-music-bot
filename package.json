@@ -5,7 +5,7 @@
     "dev": "ts-node-dev --respawn --transpile-only ./Index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "ray#1337",
+  "author": "13373333",
   "license": "MPL-2.0",
   "devDependencies": {
     "@types/ms": "^0.7.31",
