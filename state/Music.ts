@@ -629,7 +629,7 @@ class MusicUtil {
 
     const downloadOptions: ytdlDO = {
       filter: "audioonly",
-      quality: "lowestaudio",
+      quality: "highestaudio",
       highWaterMark,
       dlChunkSize: 0,
       requestOptions
