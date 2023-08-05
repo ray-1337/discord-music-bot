@@ -1,5 +1,5 @@
 import { Client, AnyInteractionGateway, CommandInteraction } from "oceanic.js";
-import CommandHandler from "../state/CommandHandler";
+import CommandHandler from "../manager/CommandHandler";
 
 export default async (client: Client, interaction: AnyInteractionGateway) => {
   try {

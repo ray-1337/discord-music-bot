@@ -1,5 +1,5 @@
 import { Client, Uncached, VoiceChannel, StageChannel, Member } from "oceanic.js";
-import Music from "../state/Music";
+import Music from "../manager/Music";
 
 export default async (client: Client, _: Member, unprocessedChannel: Uncached | VoiceChannel | StageChannel) => {
   try {

@@ -1,5 +1,5 @@
 import { Client, CommandInteraction, ApplicationCommandOptionsWithValue, Constants, AnyTextableGuildChannel, VoiceChannel } from "oceanic.js";
-import Music, { PlayerAvailability, appropriateContentType, ContentErrorEnum } from "../state/Music";
+import Music, { PlayerAvailability, appropriateContentType, ContentErrorEnum } from "../manager/Music";
 import { awaitComponentInteraction } from "oceanic-collectors";
 import ms from "ms";
 

@@ -1,9 +1,9 @@
 import { Client, CommandInteraction, Constants } from "oceanic.js";
 import { EmbedBuilder as RichEmbed } from "@oceanicjs/builders";
 import { awaitComponentInteraction } from "oceanic-collectors";
-import Music from "../state/Music";
+import Music from "../manager/Music";
 import ms from "ms";
-import { chunk } from "../state/Utility";
+import { chunk } from "../manager/Utility";
 
 export const config: CommandConfig = {
   cooldown: 7.5

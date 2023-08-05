@@ -1,5 +1,5 @@
 import { Client } from "oceanic.js";
-import SlashCommand from "../state/SlashCommand";
+import SlashCommand from "../manager/SlashCommand";
 
 export default async (client: Client) => {
   try {

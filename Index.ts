@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { Client, Constants } from "oceanic.js";
-import DiscordEvents from "./state/DiscordEvents";
+import DiscordEvents from "./manager/DiscordEvents";
 
 const Bot = new Client({
   auth: `Bot ${process.env.DISCORD_TOKEN}`,

@@ -1,5 +1,5 @@
 import { Client, CommandInteraction, ApplicationCommandOptionsWithValue, Constants, AnyTextableGuildChannel, VoiceChannel } from "oceanic.js";
-import Music, {loopState} from "../state/Music";
+import Music, {loopState} from "../manager/Music";
 
 export const config: CommandConfig = {
   cooldown: 5

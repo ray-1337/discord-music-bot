@@ -1,7 +1,7 @@
 import { Client, CommandInteraction, AnyTextableGuildChannel } from "oceanic.js";
-import Music from "../state/Music";
+import Music from "../manager/Music";
 import { EmbedBuilder } from "@oceanicjs/builders";
-import { millisToMinutesAndSeconds } from "../state/Utility";
+import { millisToMinutesAndSeconds } from "../manager/Utility";
 
 export const config: CommandConfig = {
   cooldown: 5

@@ -1,5 +1,5 @@
 import { Client, CommandInteraction, AnyTextableGuildChannel } from "oceanic.js";
-import Music from "../state/Music";
+import Music from "../manager/Music";
 
 export const config: CommandConfig = {
   cooldown: 7.5
