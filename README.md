@@ -5,10 +5,10 @@ This is my latest own project around creating Discord bot music from scratch.
 This repository is a bit unstable, such as loop command, etc. But, the rest of it is fine. I will gradually fix, or add more features in it.
 
 # Motivation
-I have a few friends, hanging out but they couldn't find a single functional Discord music bot from YouTube.<br/>
-We've tried Uzox, Hydra, MEE6, Jockie Bot, and similar. But, none of them are working.<br/>
+I have a few friends who were hanging out, but they couldn't find a single functional Discord music bot for YouTube.
+We've tried Uzox, Hydra, MEE6, Jockie Bot, and others alike, but none of them are working.<br/>
 I was disappointed and said, you know what, F- it.<br/>
-So, I've tried to create my own from scratch, while keeping it simple and easier to use.
+I've attempted to create my own Discord music bot from scratch, aiming for simplicity and ease of use.
 
 # Library
 I use:
