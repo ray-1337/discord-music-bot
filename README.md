@@ -46,6 +46,8 @@ I extended this project with more features, such as:
     - Tested URL from [ssstik.io](https://ssstik.io/download-tiktok-mp3), [savefrom.net](https://en.savefrom.net/), [fdown.net](https://fdown.net)
 - Auto-disconnect when no one's in voice channel.
 - Auto-retry if error occurred, especially [403 error from ytdl-core](https://github.com/fent/node-ytdl-core/issues/417).
+- Clutter-free.
+  - Yes, this project uses 100% slash commands and it's completely [ephemeral/private](https://support.discord.com/hc/en-us/articles/1500000580222-Ephemeral-Messages-FAQ).
 
 ## Known unresolved bugs
 Yes, there is bugs in this repository, but that wasn't caused by me, I swear. <br/>
