@@ -2,7 +2,7 @@
 This is my latest own project around creating Discord bot music from scratch.
 
 # Disclaimer
-This repository is a bit unstable, such as loop command, etc. But, the rest of it is fine. I will gradually fix, or add more features in it.
+This repository is a bit unstable, including the loop command, etc. However, the rest of it is fine. I will gradually fix any issues and add more features to it.
 
 # Motivation
 I have a few friends who were hanging out, but they couldn't find a single functional Discord music bot for YouTube.
@@ -50,7 +50,7 @@ I extended this project with more features, such as:
   - Yes, this project uses 100% slash commands and it's completely [ephemeral/private](https://support.discord.com/hc/en-us/articles/1500000580222-Ephemeral-Messages-FAQ).
 
 ## Known unresolved bugs
-Yes, there is bugs in this repository, but that wasn't caused by me, I swear. <br/>
+Yes, there are bugs in this repository, but they weren't caused by me, I swear. <br/>
 And, these bugs can be temporarily fixed by restarting the instance.
 - Sometimes, pause command doesn't pause the music.
 - TikTok remains unplayable after few plays.
@@ -59,7 +59,7 @@ And, these bugs can be temporarily fixed by restarting the instance.
 ## Can I use this too?
 Yeah, sure. I don't mind. You can recreate your own command handler, do your things here.
 
-I'm just hoping that you puts me on credit when you're using this commercial or vice-versa. ;<
+I'm just hoping that you put me on credit when you're using this commercially or vice-versa. ;<
 
 # Useful Links
 - [Contributing](.github/CONTRIBUTING.md)
