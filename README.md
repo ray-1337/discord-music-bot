@@ -18,7 +18,6 @@ I use:
 - [ffmpeg](https://ffmpeg.org) for video/audio management.
 - [libmp3lame](https://trac.ffmpeg.org/wiki/Encode/MP3) to encode video to mp3, helped with `ffmpeg`.
 - [soundcloud-downloader](https://www.npmjs.com/soundcloud-downloader) for retrieving SoundCloud contents.
-- [@tobyg74/tiktok-api-dl](https://www.npmjs.com/package/@tobyg74/tiktok-api-dl) for retrieving TikTok contents.
 
 # Installation
 - Fork the repo.
