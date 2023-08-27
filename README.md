@@ -35,7 +35,7 @@ I extended this project with more features, such as:
 - Supports search mode using Discord dropdown component, by using `/play search-mode: true`
 - Supports playing contents from the playlist.
 - Supports SoundCloud.
-- Supports TikTok [**unstable**]
+- Supports TikTok.
 - Supports playing with .mp3 file.
 - Supports playing with .mp4 file.
 - Supports [age-restriction bypass](guide/bypass.md) (YouTube platform only)
