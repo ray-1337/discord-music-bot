@@ -9,6 +9,8 @@ import { request } from "undici";
 import { spawn } from "node:child_process";
 import { load } from "cheerio";
 
+const userAgentBypass = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36";
+
 // soundcloud management
 import { create as scdlContent } from "soundcloud-downloader";
 const scdl = scdlContent({ clientID: process.env?.SOUNDCLOUD_CLIENT_ID });
@@ -362,7 +364,7 @@ class MusicUtil {
             const data = await request(query, { 
               headers: {
                 // bypass cloudflare error
-                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
+                "user-agent": userAgentBypass
               }
             });
   
@@ -593,7 +595,7 @@ class MusicUtil {
     try {
       const host = "https://ttsave.app";
       const headers = {
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+        "user-agent": userAgentBypass,
         "content-type": "application/json"
       };;
 
