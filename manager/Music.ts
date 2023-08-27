@@ -9,6 +9,10 @@ import { request } from "undici";
 import { spawn } from "node:child_process";
 import { load } from "cheerio";
 
+// spotify url play
+let spotifyAuthentication: string | null = null;
+let spotifyValidUntil: Date | null = null;
+
 const userAgentBypass = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36";
 
 // soundcloud management
@@ -37,6 +41,7 @@ const youtubeShortRegex = /https?:\/\/(?:www\.)?youtube\.com\/shorts\/(.{10,13})
 const youtubePlaylistRegex = /^http(?:s)?:\/\/(?:www\.)?youtube\.com\/playlist\?list=(PL[a-zA-Z0-9_-]{1,})/gim;
 const soundCloudRegex = /^(?:https?:\/\/)((?:www\.)|(?:m\.))?soundcloud\.com\/[a-z0-9](?!.*?(-|_){2})[\w-]{1,23}[a-z0-9](?:\/.+)?$/gim;
 const tiktokVideoRegex = /((?:https?:\/\/)(?:www\.)?tiktok\.com\/(?:@[a-zA-Z0-9_\-\.]{1,24})\/video\/(?:\d{18,21}))/gim;
+const spotifyRegex = /(https?:\/\/open.spotify.com\/(track|user|artist|album|playlist)\/([a-zA-Z0-9]+))/;
 
 // youtube (ytdl-core) header
 const requestOptions = process.env?.YOUTUBE_COOKIE ? {
@@ -296,6 +301,77 @@ class MusicUtil {
 
       // url validation
       switch (true) {
+        // spotify url -> youtube
+        case !!query?.match?.(spotifyRegex)?.length: {
+          const spotifyClientID = process.env?.SPOTIFY_API_CLIENT_ID;
+          const spotifyClientSecret = process.env?.SPOTIFY_API_CLIENT_SECRET;
+          if (!spotifyClientID?.length || !spotifyClientSecret?.length) {
+            break;
+          };
+
+          if (!spotifyAuthentication?.length || (spotifyValidUntil !== null && Date.now() >= spotifyValidUntil.getTime())) {
+            const spotifyAuthRequest = await request("https://accounts.spotify.com/api/token", {
+              method: "POST",
+              headers: {
+                "content-type": "application/x-www-form-urlencoded"
+              },
+              body: new URLSearchParams({
+                grant_type: "client_credentials",
+                client_id: spotifyClientID,
+                client_secret: spotifyClientSecret
+              }).toString()
+            });
+
+            if (spotifyAuthRequest.statusCode >= 400) {
+              console.error(`Unable to request Spotify authentication token with status code [${spotifyAuthRequest.statusCode}]`, await spotifyAuthRequest.body.text());
+              return null;
+            };
+
+            const spotifyAuthJSON = await spotifyAuthRequest.body.json() as Record<'access_token' | "token_type", string> & { expires_in: number };
+            if (!spotifyAuthJSON?.access_token?.length) {
+              return null;
+            };
+
+            spotifyAuthentication = spotifyAuthJSON.access_token;
+
+            spotifyValidUntil = new Date(Date.now() + ms("3600s"));
+          };
+
+          const spotifyURL = query?.match(spotifyRegex);
+          if (!spotifyURL?.[0]) return null;
+
+          const type = spotifyURL?.[2];
+          if (!type?.length || type !== "track") return null;
+
+          const trackID = spotifyURL?.[3];
+          if (!trackID?.length) return null;
+
+          const trackContentRequest = await request(`https://api.spotify.com/v1/tracks/${trackID}`, {
+            method: "GET",
+            headers: {
+              "content-type": "application/json",
+              "Authorization": `Bearer ${spotifyAuthentication}`
+            }
+          });
+
+          if (!trackContentRequest?.body || trackContentRequest.statusCode >= 400) {
+            console.error(`Unable to retrieve Spotify track content with status code [${trackContentRequest.statusCode}]`, await trackContentRequest.body.text());
+            return null;
+          };
+
+          interface PartialSpotifyTrack {
+            artists: Record<"name", string>[];
+            name: string;
+          }
+
+          const trackContent = await trackContentRequest.body.json() as PartialSpotifyTrack;
+
+          query = `${trackContent.artists.map(item => item.name).join(", ")} - ${trackContent.name}`;
+          playerType = "yt";
+
+          break;
+        };
+
         // playlist
         case scdl.isPlaylistURL(query):
         case !!query?.match?.(youtubePlaylistRegex)?.length: {
