@@ -11,7 +11,10 @@ const Bot = new Client({
   collectionLimits: {
     auditLogEntries: 0,
     autoModerationRules: 0,
-    channelThreads: 0,
+    stickers: 0,
+    stageInstances: 0,
+    invites: 0,
+    emojis: 0,
     groupChannels: 0,
     guildThreads: 0,
     integrations: 0,
