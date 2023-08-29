@@ -3,10 +3,6 @@ import Music, { PlayerAvailability, appropriateContentType, ContentErrorEnum } f
 import { awaitComponentInteraction } from "oceanic-collectors";
 import ms from "ms";
 
-export const config: CommandConfig = {
-  cooldown: 5
-};
-
 export const info: CommandInfo = {
   description: "Play a song from YouTube, or a file."
 };
@@ -163,4 +159,4 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyTex
   };
 };
 
-export default { config, info, run, args };
+export default { info, run, args };

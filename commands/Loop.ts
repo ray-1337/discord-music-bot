@@ -1,10 +1,6 @@
 import { Client, CommandInteraction, ApplicationCommandOptionsWithValue, Constants, AnyTextableGuildChannel, VoiceChannel } from "oceanic.js";
 import Music, {loopState} from "../manager/Music";
 
-export const config: CommandConfig = {
-  cooldown: 5
-};
-
 export const info: CommandInfo = {
   description: "Loop the current query, or whole queue."
 };
@@ -59,4 +55,4 @@ export const run = async (client: Client, interaction: CommandInteraction<AnyTex
   };
 };
 
-export default { config, info, run, args };
+export default { info, run, args };

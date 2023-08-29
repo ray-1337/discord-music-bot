@@ -18,6 +18,5 @@ interface CommandInterface {
 }
 
 interface CommandConfig {
-  cooldown?: number;
   permissions?: (keyof typeof import("oceanic.js")["Constants"]["Permissions"])[];
 }

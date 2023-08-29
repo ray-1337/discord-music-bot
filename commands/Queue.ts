@@ -5,10 +5,6 @@ import Music from "../manager/Music";
 import ms from "ms";
 import { chunk } from "../manager/Utility";
 
-export const config: CommandConfig = {
-  cooldown: 7.5
-};
-
 export const info: CommandInfo = {
   description: "Display the audio queue of the current."
 };
@@ -104,4 +100,4 @@ export const run = async (client: Client, interaction: CommandInteraction) => {
   };
 };
 
-export default { config, info, run };
+export default { info, run };

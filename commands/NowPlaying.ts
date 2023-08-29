@@ -3,10 +3,6 @@ import Music from "../manager/Music";
 import { EmbedBuilder } from "@oceanicjs/builders";
 import { millisToMinutesAndSeconds } from "../manager/Utility";
 
-export const config: CommandConfig = {
-  cooldown: 5
-};
-
 export const info: CommandInfo = {
   description: "Display the current playing song."
 };
@@ -61,4 +57,4 @@ export const run = async (client:  Client, interaction: CommandInteraction<AnyTe
   };
 };
 
-export default { config, info, run };
+export default { info, run };

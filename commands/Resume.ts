@@ -1,10 +1,6 @@
 import { Client, CommandInteraction, AnyTextableGuildChannel } from "oceanic.js";
 import Music from "../manager/Music";
 
-export const config: CommandConfig = {
-  cooldown: 5
-};
-
 export const info: CommandInfo = {
   description: "Resume the music player."
 };
@@ -36,4 +32,4 @@ export const run = async (client:  Client, interaction: CommandInteraction<AnyTe
   };
 };
 
-export default { config, info, run };
+export default { info, run };
