@@ -1,8 +1,5 @@
 import { Client, Uncached, VoiceChannel, StageChannel, Member } from "oceanic.js";
-import Music from "../manager/Music";
-import { allUsersLeaveTimeout } from "../Config";
-
-export const leaveTimeout: Record<string, NodeJS.Timeout> = {};
+import { leaveTimeout } from "./voiceChannelLeave";
 
 export default async (client: Client, _: Member, unprocessedChannel: Uncached | VoiceChannel | StageChannel) => {
   try {
@@ -10,16 +7,12 @@ export default async (client: Client, _: Member, unprocessedChannel: Uncached | 
       const channel = client?.getChannel<VoiceChannel | StageChannel>(unprocessedChannel.id) || await client.rest.channels.get<VoiceChannel | StageChannel>(unprocessedChannel.id);
       if (!channel) return;
   
-      if (channel.voiceMembers.filter(val => !val.bot).length <= 0) {
-        if (allUsersLeaveTimeout) {
-          const timeout = setTimeout(() => Music.stop(channel.guildID), allUsersLeaveTimeout);
-          
-          leaveTimeout[channel.guildID] = timeout;
-
+      if (channel.voiceMembers.filter(val => !val.bot).length >= 1) {
+        if (leaveTimeout?.[channel.guildID]) {
+          clearTimeout(leaveTimeout[channel.guildID]);
+          delete leaveTimeout[channel.guildID];
           return;
         };
-
-        return Music.stop(channel.guildID);
       };
     };
   } catch (error) {
