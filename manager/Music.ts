@@ -9,6 +9,9 @@ import { request } from "undici";
 import { spawn } from "node:child_process";
 import { load } from "cheerio";
 
+// i set higher so it can play audio smoothly, you can make it higher if you have a huge memory usage
+const highWaterMark = 1 << 26;
+
 // spotify url play
 let spotifyAuthentication: string | null = null;
 let spotifyValidUntil: Date | null = null;
@@ -704,9 +707,6 @@ class MusicUtil {
   };
 
   async #safeytdl(query: string): Promise<Readable | null> {
-    // i set higher so it can play audio smoothly, you can make it higher if you have a huge memory usage
-    const highWaterMark = 1 << 26;
-
     const downloadOptions: ytdlDO = {
       filter: "audioonly",
       quality: "highestaudio",
