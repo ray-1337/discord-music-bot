@@ -8,6 +8,8 @@ import ms from "ms";
 import { request } from "undici";
 import { spawn } from "node:child_process";
 import { load } from "cheerio";
+import { FFmpeg } from "prism-media";
+import parseDurationMore from "extended-parse-duration";
 
 // i set higher so it can play audio smoothly, you can make it higher if you have a huge memory usage
 const highWaterMark = 1 << 26;
@@ -239,6 +241,67 @@ class MusicUtil {
       console.error(error);
       return null;
     };
+  };
+
+  // seek (yt only, testing)
+  async seek(guildID: string, time: string) {
+    const parsedDuration = parseDurationMore(time);
+    if (isNaN(parsedDuration) || typeof parsedDuration !== "number") return false;
+
+    if (!musicConnection.has(guildID)) return false;
+    const { voiceState } = musicConnection.get(guildID);
+
+    if (!musicData.has(guildID)) return false;
+    
+    const currentQueue = musicData?.get(guildID)?.[0];
+    if (!currentQueue) return false;
+
+    const url = currentQueue?.url;
+    if (!url?.length || !validateYTURL(url)) {
+      return false;
+    };
+
+    const ytVideoID = ytdl.getVideoID(url);
+    if (!ytVideoID) return false;
+
+    const ytInfo = await ytdl.getInfo(ytVideoID, { requestOptions });
+    if (
+      !ytInfo ||
+      
+      // skip broadcast
+      ytInfo?.videoDetails?.liveBroadcastDetails?.isLiveNow
+    ) return false;
+
+    const audioURLAfterFilter = ytInfo.formats.filter(val => val.hasAudio && !val.hasVideo && !val.isHLS && (val.codecs === "opus" || val.audioCodec === "opus") && !val.isLive && url?.length);
+    if (!audioURLAfterFilter?.[0]?.url) return false;
+
+    if (currentMusicData.has(guildID)) {
+      currentMusicData.delete(guildID);
+    };
+
+    const args = [
+      "-reconnect", "1",
+      "-reconnect_streamed", "1",
+      "-reconnect_delay_max", "5",
+      "-ss", `${Math.round(parsedDuration / 1000)}`,
+      "-i", audioURLAfterFilter[0].url,
+      "-analyzeduration", "0",
+      "-loglevel", "0",
+      "-ar", "48000",
+      "-ac", "2",
+      "-f", "opus",
+      "-acodec", "libopus"
+    ];
+
+    const developedStream = new FFmpeg({ args, shell: false });
+
+    developedStream.once("error", (error) => console.error(error));
+
+    (<any>developedStream)._readableState && ((<any>developedStream)._readableState.highWaterMark = highWaterMark);
+
+    this.#privatePlay(voiceState, developedStream);
+
+    return true;
   };
 
   // expose queue
