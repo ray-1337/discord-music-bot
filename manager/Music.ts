@@ -141,6 +141,10 @@ class MusicUtil {
         default: return ContentErrorEnum.GOOD;
       };
     } catch (error) {
+      if (process.env.npm_lifecycle_event === "dev") {
+        console.error(error);
+      };
+
       if (String(error).indexOf("410") !== -1) {
         return ContentErrorEnum.AGE_RESTRICTED;
       } else {
