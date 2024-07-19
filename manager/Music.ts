@@ -1,6 +1,6 @@
 import { VoiceState } from "oceanic.js";
 import { search as ytSearch } from "yt-search";
-import ytdl, { downloadOptions as ytdlDO, validateURL as validateYTURL } from "ytdl-core";
+import ytdl, { createAgent, type Cookie, downloadOptions as ytdlDO, validateURL as validateYTURL } from "@distube/ytdl-core";
 import { createAudioPlayer, StreamType, createAudioResource, AudioResource, AudioPlayer, VoiceConnection, AudioPlayerStatus, joinVoiceChannel } from "@discordjs/voice";
 import isURL from "validator/lib/isURL";
 import { Readable } from "node:stream";
@@ -57,9 +57,22 @@ const tiktokVideoRegex = /((?:https?:\/\/)(?:www\.)?tiktok\.com\/(?:@[a-zA-Z0-9_
 const spotifyRegex = /(https?:\/\/open.spotify.com\/(track|user|artist|album|playlist)\/([a-zA-Z0-9]+))/;
 
 // youtube (ytdl-core) header
-const requestOptions = process.env?.YOUTUBE_COOKIE ? {
-  headers: { cookie: process.env.YOUTUBE_COOKIE }
-} : {};
+// const requestOptions = process.env?.YOUTUBE_COOKIE ? {
+//   headers: { cookie: process.env.YOUTUBE_COOKIE }
+// } : {};
+
+const agentList: Cookie[] = [];
+
+if (typeof process.env?.YOUTUBE_COOKIE === "string") {
+  if (!agentList.some(val => val.name === "cookie")) {
+    agentList.push({
+      name: "cookie",
+      value: process.env.YOUTUBE_COOKIE
+    })
+  };
+};
+
+const ytdlAgent = createAgent(agentList);
 
 export enum ContentErrorEnum {
   GOOD,
@@ -134,7 +147,7 @@ class MusicUtil {
     try {
       switch (true) {
         case validateYTURL(query): {
-          const content = await ytdl.getBasicInfo(query, {requestOptions});
+          const content = await ytdl.getBasicInfo(query, { agent: ytdlAgent });
 
           if (!content?.videoDetails) return ContentErrorEnum.UNKNOWN;
 
@@ -229,7 +242,7 @@ class MusicUtil {
 
         // youtube
         case validateYTURL(query): {
-          const {videoDetails} = await ytdl.getInfo(query, {requestOptions});
+          const {videoDetails} = await ytdl.getInfo(query, { agent: ytdlAgent });
           if (!videoDetails) return null;
 
           const { title, video_url, lengthSeconds, videoId, author, thumbnails } = videoDetails;
@@ -276,7 +289,7 @@ class MusicUtil {
     const ytVideoID = ytdl.getVideoID(url);
     if (!ytVideoID) return false;
 
-    const ytInfo = await ytdl.getInfo(ytVideoID, { requestOptions });
+    const ytInfo = await ytdl.getInfo(ytVideoID, { agent: ytdlAgent });
     if (
       !ytInfo ||
       
@@ -787,11 +800,11 @@ class MusicUtil {
       quality: "highestaudio",
       highWaterMark,
       dlChunkSize: 0,
-      requestOptions
+      agent: ytdlAgent
     };
 
     try {
-      const contentInfo = await ytdl.getInfo(query, { requestOptions });
+      const contentInfo = await ytdl.getInfo(query, { agent: ytdlAgent });
       if (!contentInfo) return null;
 
       return ytdl.downloadFromInfo(contentInfo, downloadOptions);
