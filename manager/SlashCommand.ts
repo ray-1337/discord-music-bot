@@ -3,7 +3,7 @@ import path from "node:path";
 import { readdir, lstat } from "node:fs/promises";
 import { pascalToCamel, truncateString } from "./Utility";
 
-export const commandCache: GuardedMap<string, CommandSmallDetails> = new Map();
+export const commandCache = new Map<string, CommandSmallDetails>();
 
 const fileSpecificRegex = /\.(t|j)s+$/gi;
 
@@ -70,7 +70,7 @@ export default async function (client: Client) {
     //   return console.log(`Generated slash commands for ${client.guilds.size} guilds for ${Math.round(performance.now() - firstTime).toLocaleString()} ms.`);
     // };
 
-    await client.rest.applicationCommands.bulkEditGlobalCommands(client.user.id, finaleCommand);
+    await client.rest.applications.bulkEditGlobalCommands(client.user.id, finaleCommand);
     
     return console.log(`Generated slash commands for ${client.guilds.size} guilds for ${Math.round(performance.now() - firstTime).toLocaleString()} ms.`);
   } catch (error) {
