@@ -31,15 +31,23 @@ const durationLimit = ms("6h"); // 6 hours
 let [currentContentStartTime, currentContentCheckpointTime]: Array<number | null> = [null, null];
 
 // music state
-const musicData: GuardedMap<string, MusicDataInference[]> = new Map();
-const musicConnection: GuardedMap<string, { voiceState: VoiceState, audioPlayer: AudioPlayer, voiceConnection: VoiceConnection }> = new Map();
-const currentMusicData: GuardedMap<string, AudioResource> = new Map();
+const musicData = new Map<string, MusicDataInference[]>();
+const currentMusicData = new Map<string, AudioResource>();
+
+// music connection
+interface PartialMusicConnectionProp {
+  voiceState: VoiceState;
+  audioPlayer: AudioPlayer;
+  voiceConnection: VoiceConnection;
+};
+
+const musicConnection = new Map<string, PartialMusicConnectionProp>();
 
 // loop state
 export type loopState = "single" | "whole";
 export type PlayerAvailability = "sc" | "yt";
-const loopMusic: GuardedMap<string, loopState> = new Map();
-const loopedQuery: GuardedMap<string, MusicDataInference[]> = new Map();
+const loopMusic = new Map<string, loopState>();
+const loopedQuery = new Map<string, MusicDataInference[]>();
 
 const youtubeRegex = /(https?:\/\/(?:www\.)?((?:youtu\.be\/.{4,16})|(youtube\.com\/watch\?v=.{4,16})))/gim;
 const youtubeShortRegex = /https?:\/\/(?:www\.)?youtube\.com\/shorts\/(.{10,13})/im;
@@ -72,7 +80,7 @@ class MusicUtil {
 
     return {
       ...connection,
-      currentQueue: musicData.get(guildID)[0],
+      currentQueue: (musicData.get(guildID) as MusicDataInference[])[0],
       audioResource: currentMusicData.get(guildID),
       loop: loopMusic.get(guildID),
       paused: connection?.audioPlayer.state.status === AudioPlayerStatus.Paused
@@ -81,7 +89,7 @@ class MusicUtil {
   
   stop(guildID: string) {
     if (!musicConnection.has(guildID)) return false;
-    const { audioPlayer, voiceConnection } = musicConnection.get(guildID);
+    const { audioPlayer, voiceConnection } = musicConnection.get(guildID) as PartialMusicConnectionProp;
 
     voiceConnection.off("error", (error) => console.error(error));
 
@@ -253,7 +261,7 @@ class MusicUtil {
     if (isNaN(parsedDuration) || typeof parsedDuration !== "number") return false;
 
     if (!musicConnection.has(guildID)) return false;
-    const { voiceState } = musicConnection.get(guildID);
+    const { voiceState } = musicConnection.get(guildID) as PartialMusicConnectionProp;
 
     if (!musicData.has(guildID)) return false;
     
@@ -327,7 +335,7 @@ class MusicUtil {
 
     // if whole, store last queried songs, exhaust it, and bring it back to loopedQuery again
     if (loopState === "whole") {
-      loopedQuery.set(guildID, musicData.get(guildID));
+      loopedQuery.set(guildID, musicData.get(guildID) as MusicDataInference[]);
     };
 
     return true;
@@ -337,7 +345,7 @@ class MusicUtil {
   pause(guildID: string) {
     if (!musicConnection.has(guildID)) return false;
 
-    const { audioPlayer } = musicConnection.get(guildID);
+    const { audioPlayer } = musicConnection.get(guildID) as PartialMusicConnectionProp;
     if (!audioPlayer) return false;
 
     if (currentContentStartTime !== null) {
@@ -350,7 +358,7 @@ class MusicUtil {
   // resume the player
   resume(guildID: string) {
     if (!musicConnection.has(guildID)) return false;
-    const { audioPlayer } = musicConnection.get(guildID);
+    const { audioPlayer } = musicConnection.get(guildID) as PartialMusicConnectionProp;
 
     if (currentContentStartTime !== null && currentContentCheckpointTime !== null) {
       currentContentStartTime = Date.now() - currentContentCheckpointTime;
@@ -631,7 +639,7 @@ class MusicUtil {
 
     try {
       if (!musicConnection.has(guildID)) return false;
-      const { audioPlayer, voiceState } = musicConnection.get(guildID);
+      const { audioPlayer, voiceState } = musicConnection.get(guildID) as PartialMusicConnectionProp;
 
       // delete audio resource from cache
       currentMusicData.delete(guildID);
@@ -799,7 +807,7 @@ class MusicUtil {
     const { guildID } = voiceState;
 
     if (musicConnection.has(guildID)) {
-      const {voiceConnection} = musicConnection.get(guildID);
+      const { voiceConnection } = musicConnection.get(guildID) as PartialMusicConnectionProp;
 
       if (!currentMusicData.has(guildID)) {
         voiceConnection.subscribe(audioPlayer);
@@ -855,7 +863,7 @@ class MusicUtil {
 
   #saveQueue(guildID: string, requesterID: string, url: string) {
     if (musicData.has(guildID)) {
-      musicData.get(guildID).push({requesterID, url});
+      (musicData.get(guildID) as MusicDataInference[]).push({requesterID, url});
 
       // loop whole queue
       if (loopMusic.has(guildID) && loopMusic.get(guildID) === "whole") {
